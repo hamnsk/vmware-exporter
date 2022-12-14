@@ -213,6 +213,9 @@ func (s *service) hostMetrics() {
 	}
 
 	nn, err := hs.ConfigManager().NetworkSystem(ctx)
+	if err != nil {
+		s.logger.Fatal(err.Error())
+	}
 	var hostsn mo.HostNetworkSystem
 	err = nn.Properties(ctx, nn.Reference(), nil, &hostsn)
 	if err != nil {
