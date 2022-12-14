@@ -1,3 +1,6 @@
+[![Go Checks](https://github.com/hamnsk/vmware-exporter/actions/workflows/go_checks.yml/badge.svg?branch=main)](https://github.com/hamnsk/vmware-exporter/actions/workflows/go_checks.yml)
+[![Release](https://github.com/hamnsk/vmware-exporter/actions/workflows/release.yml/badge.svg)](https://github.com/hamnsk/vmware-exporter/actions/workflows/release.yml)
+
 # VMWare Exporter 
 Collect metrics from ESXi Host
 
