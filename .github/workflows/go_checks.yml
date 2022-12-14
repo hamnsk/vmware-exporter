@@ -22,11 +22,11 @@ jobs:
         go-version: 1.18
         
     - name: Verify dependencies
-      run: cd ./app && go mod verify
+      run: go mod verify
 
     - name: Install staticcheck
-      run: cd ./app && go install honnef.co/go/tools/cmd/staticcheck@latest
+      run: go install honnef.co/go/tools/cmd/staticcheck@latest
 
     - name: Run staticcheck
-      run: cd ./app &&  staticcheck ./...
+      run: staticcheck ./...
 
