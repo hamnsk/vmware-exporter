@@ -1,0 +1,18 @@
+FROM golang:1.18-alpine3.14 AS builder
+COPY . /usr/local/go/src/vmware-exporter
+WORKDIR /usr/local/go/src/vmware-exporter
+
+RUN go clean --modcache && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=readonly -o vmware-exporter cmd/vmware-exporter/main.go
+
+FROM scratch
+ENV VMWARE_EXPORTER_BIND_ADDR=0.0.0.0:9513
+ENV VMWARE_EXPORTER_VMWARE_USER=monitoring
+ENV VMWARE_EXPORTER_VMWARE_PASSWORD=strongPass
+ENV VMWARE_EXPORTER_LOG_LEVEL=info
+ENV VMWARE_EXPORTER_HTTP_WRITE_TIMEOUT=30s
+ENV VMWARE_EXPORTER_HTTP_READ_TIMEOUT=30s
+WORKDIR /app
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /usr/local/go/src/vmware-exporter /app/
+
+CMD ["/app/vmware-exporter"]

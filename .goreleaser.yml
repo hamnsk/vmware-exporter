@@ -1,0 +1,52 @@
+builds:
+  - main: cmd/vmware-exporter/main.go
+    binary: vmware-exporter
+    flags: -tags netgo
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+      - -X vmware-exporter/internal/version.BuildTime={{.Date}}
+      - -X vmware-exporter/internal/version.Commit={{.FullCommit}}
+      - -X vmware-exporter/internal/version.Version={{.Version}}
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: linux
+        goarch: arm
+      - goos: windows
+        goarch: 386
+      - goos: windows
+        goarch: amd64
+dockers:
+  - image_templates:
+      - "ghcr.io/hamnsk/vmware-exporter:{{ .Version }}"
+      - "ghcr.io/hamnsk/vmware-exporter:latest"
+    dockerfile: 'Dockerfile'
+    build_flag_templates:
+      - "--platform=linux/amd64"
+archives:
+  - name_template: "vmware-exporter-{{ .Version }}.{{ .Os }}-{{ .Arch }}"
+    wrap_in_directory: true
+checksum:
+  name_template: checksums.txt
+nfpms:
+  - homepage: https://github.com/hamnsk/vmware-exporter
+    maintainer: s.andrynin@gmail.com
+    description: VMWare Exporter
+    license: MIT
+    formats:
+      - deb
+      - rpm
+    bindir: /opt/exporter
+release:
+  github:
+    owner: hamnsk
+    name: vmware-exporter
+  draft: false
+  prerelease: false
