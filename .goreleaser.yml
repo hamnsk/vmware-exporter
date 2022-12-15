@@ -43,7 +43,7 @@ nfpms:
     formats:
       - deb
       - rpm
-    bindir: /opt/exporter
+    bindir: /opt/prometheus/exporters/vmware-exporter
 release:
   github:
     owner: hamnsk

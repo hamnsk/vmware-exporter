@@ -3,6 +3,7 @@ package vmware
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"vmware-exporter/internal/config"
@@ -27,8 +28,9 @@ const homeResponse = `<html>
 var _ Handler = &exporterHandler{}
 
 type exporterHandler struct {
-	logger *logging.Logger
-	cfg    interface{}
+	logger       *logging.Logger
+	cfg          interface{}
+	promRegistry map[string]*prometheus.Registry
 }
 
 type Handler interface {
@@ -37,8 +39,9 @@ type Handler interface {
 
 func GetHandler(logger *logging.Logger, cfg interface{}) Handler {
 	h := exporterHandler{
-		logger: logger,
-		cfg:    cfg,
+		logger:       logger,
+		cfg:          cfg,
+		promRegistry: make(map[string]*prometheus.Registry),
 	}
 	return &h
 }
@@ -59,17 +62,11 @@ func (h *exporterHandler) probe(w http.ResponseWriter, r *http.Request) {
 	host := r.URL.Query().Get("target")
 	if len(host) > 1 {
 		service := NewService(h.logger, host, h.cfg)
-		go func() {
-			service.hostMetrics()
-		}()
-		go func() {
-			service.dsMetrics()
-		}()
-		go func() {
-			service.vmMetrics()
-		}()
+		service.hostMetrics()
+		service.dsMetrics()
+		service.vmMetrics()
 	}
-	w.WriteHeader(http.StatusOK)
+	promhttp.Handler().ServeHTTP(w, r)
 }
 
 func (h *exporterHandler) reload(w http.ResponseWriter, r *http.Request) {

@@ -2,6 +2,7 @@ package vmware
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/version"
 )
 
 const namespace = "vmware_exporter"
@@ -143,6 +144,7 @@ var (
 
 func RegisterMetrics() {
 	prometheus.MustRegister(
+		version.NewCollector("vmware_exporter"),
 		prometheusHostPowerState,
 		prometheusHostBoot,
 		prometheusTotalCpu,

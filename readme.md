@@ -70,9 +70,9 @@ scrape_configs:
     metrics_path: /probe
     static_configs:
       - targets:
-        - http://esxi0001.localdomain
-        - https://esxi0002.tech
-        - http://192.168.1.17
+        - esxi0001.localdomain
+        - esxi0002.tech
+        - 192.168.1.17
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
