@@ -20,7 +20,7 @@ docker build -f ./Dockerfile.local -t vmware-exporter .
 ## Running this software
 
 ### From binaries
-Download or build the most suitable binary from [the releases tab](https://github.com/hamnsk/vmware_exporter/releases)
+Download or build the most suitable binary from [the releases tab](https://github.com/hamnsk/vmware-exporter/releases)
 
 Then:
 
@@ -87,12 +87,12 @@ scrape_configs:
 VMWare exporter is configured via a environment variables.
 
 ### Environment variables
-| ENV VARIABLE                                                      | DEFAULT    | DESCRIPTION                                         |
-|-------------------------------------------------------------------|------------|-----------------------------------------------------|
+| ENV VARIABLE                                                      | DEFAULT    | DESCRIPTION                                       |
+|-------------------------------------------------------------------|------------|---------------------------------------------------|
 | VMWARE_EXPORTER_BIND_ADDR                                         | :9513      | Exporter bind address in format XXX.XXX.XXX.XXX:PORT |
-| VMWARE_EXPORTER_VMWARE_USER                                       | monitoring | ESXIi user name                                     |         
-| VMWARE_EXPORTER_VMWARE_PASSWORD                                   | password   | ESXIi user password                                 | 
-| VMWARE_EXPORTER_LOG_LEVEL                                         | info       | Log level e.g. in info,warn,error,debug             |
+| VMWARE_EXPORTER_VMWARE_USER                                       | monitoring | ESXi user name                                    |         
+| VMWARE_EXPORTER_VMWARE_PASSWORD                                   | password   | ESXi user password                                | 
+| VMWARE_EXPORTER_LOG_LEVEL                                         | info       | Log level e.g. in info,warn,error,debug           |
 | VMWARE_EXPORTER_HTTP_WRITE_TIMEOUT | 30s | Time duration e.g. 30s or 1m | 
 | VMWARE_EXPORTER_HTTP_READ_TIMEOUT | 30s | Time duration e.g. 30s or 1m |  
 
