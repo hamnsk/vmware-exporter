@@ -9,6 +9,11 @@ builds:
       - -X vmware-exporter/internal/version.BuildTime={{.Date}}
       - -X vmware-exporter/internal/version.Commit={{.FullCommit}}
       - -X vmware-exporter/internal/version.Version={{.Version}}
+      - -X github.com/prometheus/common/version.Version={{.Version}}
+      - -X github.com/prometheus/common/version.Revision={{.Revision}}
+      - -X github.com/prometheus/common/version.Branch={{.Branch}}
+      - -X github.com/prometheus/common/version.BuildUser={{user}}@{{host}}
+      - -X github.com/prometheus/common/version.BuildDate={{date "20060102-15:04:05"}}
     goos:
       - linux
       - darwin

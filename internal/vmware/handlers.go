@@ -22,6 +22,8 @@ const homeResponse = `<html>
 			<body>
 			<h1>Vmware Prometheus Exporter</h1>
 			<p><a href="` + "/metrics" + `">Show Metrics</a></p>
+			<h2>More information:</h2>
+			<p><a href="https://github.com/hamnsk/vmware-exporter">github.com/hamnsk/vmware-exporter</a></p>
 			</body>
 			</html>`
 
@@ -59,9 +61,16 @@ func (h *exporterHandler) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *exporterHandler) probe(w http.ResponseWriter, r *http.Request) {
-	host := r.URL.Query().Get("target")
-	if len(host) > 1 {
-		service := NewService(h.logger, host, h.cfg)
+	query := r.URL.Query()
+
+	target := query.Get("target")
+	if len(query["target"]) != 1 || target == "" {
+		http.Error(w, "'target' parameter must be specified once", http.StatusBadRequest)
+		return
+	}
+
+	if len(target) > 1 {
+		service := NewService(h.logger, target, h.cfg)
 		service.hostMetrics()
 		service.dsMetrics()
 		service.vmMetrics()

@@ -60,7 +60,7 @@ var (
 	prometheusHostHardwareInfo = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Namespace: namespace,
 		Subsystem: "host",
-		Name:      "host_hardware_info",
+		Name:      "hardware_info",
 		Help:      "Vmware Host Hardware info",
 	}, []string{"host_name", "vendor", "model", "uuid", "cpu_model", "num_cpu", "cpu_mhz", "cpu_cores", "cpu_threads", "num_nics", "num_hbas"})
 
