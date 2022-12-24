@@ -57,7 +57,8 @@ $ docker run --rm \
 
 
 ### Checking the results
-Visiting [http://localhost:9513/probe?target=esxi.host.name.or.ipaddr](http://localhost:9513/probe?target=esxi.host.name.or.ipaddr)
+Visiting [http://localhost:9513/probe?target=esxi.host.name.or.ipaddr
+](http://localhost:9513/probe?target=esxi.host.name.or.ipaddr)
 for collect metrics from ESXi host
 
 Then visit [http://localhost:9513/metrics](http://localhost:9513/metrics)
@@ -104,8 +105,8 @@ VMWare exporter is configured via a environment variables.
 | VMWARE_EXPORTER_VMWARE_USER        | monitoring | ESXi user name                                    |         
 | VMWARE_EXPORTER_VMWARE_PASSWORD    | password   | ESXi user password                                | 
 | VMWARE_EXPORTER_LOG_LEVEL          | info       | Log level e.g. in info,warn,error,debug           |
-| VMWARE_EXPORTER_HTTP_WRITE_TIMEOUT | 30s | Time duration e.g. 30s or 1m | 
-| VMWARE_EXPORTER_HTTP_READ_TIMEOUT  | 30s | Time duration e.g. 30s or 1m |  
-| VMWARE_EXPORTER_SCRAPE_TIMEOUT     | 30s | Time duration e.g. 30s or 1m |  
+| VMWARE_EXPORTER_HTTP_WRITE_TIMEOUT | 30s        | Time duration e.g. 30s or 1m | 
+| VMWARE_EXPORTER_HTTP_READ_TIMEOUT  | 30s        | Time duration e.g. 30s or 1m |  
+| VMWARE_EXPORTER_SCRAPE_TIMEOUT     | 60s        | Time duration e.g. 30s or 1m |  
 
 
