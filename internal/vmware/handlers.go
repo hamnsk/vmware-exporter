@@ -30,9 +30,8 @@ const homeResponse = `<html>
 var _ Handler = &exporterHandler{}
 
 type exporterHandler struct {
-	logger       *logging.Logger
-	cfg          interface{}
-	promRegistry map[string]*prometheus.Registry
+	logger *logging.Logger
+	cfg    interface{}
 }
 
 type Handler interface {
@@ -41,9 +40,8 @@ type Handler interface {
 
 func GetHandler(logger *logging.Logger, cfg interface{}) Handler {
 	h := exporterHandler{
-		logger:       logger,
-		cfg:          cfg,
-		promRegistry: make(map[string]*prometheus.Registry),
+		logger: logger,
+		cfg:    cfg,
 	}
 	return &h
 }
@@ -70,12 +68,13 @@ func (h *exporterHandler) probe(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(target) > 1 {
-		service := NewService(h.logger, target, h.cfg)
-		service.hostMetrics()
-		service.dsMetrics()
-		service.vmMetrics()
+		svc := NewService(h.logger, target, h.cfg)
+		reg := prometheus.NewRegistry()
+		prometheus.DefaultRegisterer = reg
+		prometheus.DefaultGatherer = reg
+		reg.MustRegister(NewCollector(svc))
 	}
-	promhttp.Handler().ServeHTTP(w, r)
+	promhttp.HandlerFor(prometheus.DefaultGatherer, promhttp.HandlerOpts{}).ServeHTTP(w, r)
 }
 
 func (h *exporterHandler) reload(w http.ResponseWriter, r *http.Request) {

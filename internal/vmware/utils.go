@@ -63,8 +63,8 @@ func perfMon(ctx context.Context, c *govmomi.Client, l *logging.Logger, vms []ty
 	// Create PerfQuerySpec
 	spec := types.PerfQuerySpec{
 		MaxSample:  1,
-		MetricId:   []types.PerfMetricId{{Instance: "*"}},
-		IntervalId: int32(*interval),
+		MetricId:   []types.PerfMetricId{{Instance: ""}},
+		IntervalId: int32(interval),
 	}
 
 	// Query metrics

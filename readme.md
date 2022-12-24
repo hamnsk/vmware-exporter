@@ -2,7 +2,17 @@
 [![Release](https://github.com/hamnsk/vmware-exporter/actions/workflows/release.yml/badge.svg)](https://github.com/hamnsk/vmware-exporter/actions/workflows/release.yml)
 
 # VMWare Exporter 
-Collect metrics from ESXi Host
+Collect metrics from ESXi Host and VM's performance metrics
+
+> Attention!
+> This exporter has not been tested with vCloud Director due to the fact that I do not have a license for it.
+> If someone can test this functionality I will be glad. 
+> It would be ideal to have access to it for further product development.
+
+## Road Map
+
+* Create Grafana Dashboards
+* Refactor and Optimize Code
 
 ## Build
 
@@ -41,6 +51,7 @@ $ docker run --rm \
   --env VMWARE_EXPORTER_LOG_LEVEL=info \
   --env VMWARE_EXPORTER_HTTP_WRITE_TIMEOUT=30s \
   --env VMWARE_EXPORTER_HTTP_READ_TIMEOUT=30s \
+  --env VMWARE_EXPORTER_SCRAPE_TIMEOUT=30s \
   ghcr.io/hamnsk/vmware-exporter:latest
 ```
 
@@ -50,7 +61,7 @@ Visiting [http://localhost:9513/probe?target=esxi.host.name.or.ipaddr](http://lo
 for collect metrics from ESXi host
 
 Then visit [http://localhost:9513/metrics](http://localhost:9513/metrics)
-will return metrics for a ESXi host
+will return metrics for a main app
 
 ## Prometheus Configuration
 
@@ -87,16 +98,14 @@ scrape_configs:
 VMWare exporter is configured via a environment variables.
 
 ### Environment variables
-| ENV VARIABLE                                                      | DEFAULT    | DESCRIPTION                                       |
-|-------------------------------------------------------------------|------------|---------------------------------------------------|
-| VMWARE_EXPORTER_BIND_ADDR                                         | :9513      | Exporter bind address in format XXX.XXX.XXX.XXX:PORT |
-| VMWARE_EXPORTER_VMWARE_USER                                       | monitoring | ESXi user name                                    |         
-| VMWARE_EXPORTER_VMWARE_PASSWORD                                   | password   | ESXi user password                                | 
-| VMWARE_EXPORTER_LOG_LEVEL                                         | info       | Log level e.g. in info,warn,error,debug           |
+| ENV VARIABLE                       | DEFAULT    | DESCRIPTION                                       |
+|------------------------------------|------------|---------------------------------------------------|
+| VMWARE_EXPORTER_BIND_ADDR          | :9513      | Exporter bind address in format XXX.XXX.XXX.XXX:PORT |
+| VMWARE_EXPORTER_VMWARE_USER        | monitoring | ESXi user name                                    |         
+| VMWARE_EXPORTER_VMWARE_PASSWORD    | password   | ESXi user password                                | 
+| VMWARE_EXPORTER_LOG_LEVEL          | info       | Log level e.g. in info,warn,error,debug           |
 | VMWARE_EXPORTER_HTTP_WRITE_TIMEOUT | 30s | Time duration e.g. 30s or 1m | 
-| VMWARE_EXPORTER_HTTP_READ_TIMEOUT | 30s | Time duration e.g. 30s or 1m |  
+| VMWARE_EXPORTER_HTTP_READ_TIMEOUT  | 30s | Time duration e.g. 30s or 1m |  
+| VMWARE_EXPORTER_SCRAPE_TIMEOUT     | 30s | Time duration e.g. 30s or 1m |  
 
 
-### Other exporters
-
-* https://github.com/pryorda/vmware_exporter

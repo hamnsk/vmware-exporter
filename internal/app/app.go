@@ -24,7 +24,7 @@ type app struct {
 
 func Run() int {
 	app := new()
-	vmware.RegisterMetrics()
+	vmware.RegisterExporter()
 	app.start()
 	shutdownChan := make(chan os.Signal, 1)
 	hupChan := make(chan os.Signal, 1)
@@ -74,7 +74,6 @@ func (a *app) startAppHTTPServer() {
 	exporterHandler := vmware.GetHandler(&a.logger, a.config)
 	exporterHandler.Register(a.appRouter)
 
-	a.logger.Info("Starting server...")
 	cfg := reflect.ValueOf(a.config).Elem()
 
 	bindAddr := cfg.FieldByName("BindAddr").Interface().(string)
@@ -82,6 +81,8 @@ func (a *app) startAppHTTPServer() {
 	if len(bindAddr) < 1 {
 		bindAddr = ":9513"
 	}
+
+	a.logger.Info("Starting server...", a.logger.String("bind_addr", bindAddr))
 
 	wtimeout, err := time.ParseDuration(cfg.FieldByName("HTTPWriteTimeout").Interface().(string))
 	if err != nil {

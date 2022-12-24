@@ -7,164 +7,210 @@ import (
 
 const namespace = "vmware_exporter"
 
-var (
-	prometheusHostPowerState = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "host",
-		Name:      "power_state",
-		Help:      "poweredOn 1, poweredOff 2, standBy 3, other 0",
-	}, []string{"host_name"})
-	prometheusHostBoot = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "host",
-		Name:      "boot_timestamp_seconds",
-		Help:      "Uptime host",
-	}, []string{"host_name"})
-	prometheusTotalCpu = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "host",
-		Name:      "cpu_max",
-		Help:      "CPU total",
-	}, []string{"host_name"})
-	prometheusUsageCpu = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "host",
-		Name:      "cpu_usage",
-		Help:      "CPU Usage",
-	}, []string{"host_name"})
-	prometheusTotalMem = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "host",
-		Name:      "memory_max",
-		Help:      "Memory max",
-	}, []string{"host_name"})
-	prometheusUsageMem = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "host",
-		Name:      "memory_usage",
-		Help:      "Memory Usage",
-	}, []string{"host_name"})
-	prometheusDiskOk = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "host",
-		Name:      "disk_ok",
-		Help:      "Disk is working normally",
-	}, []string{"host_name", "device"})
+type diskOk struct {
+	device string
+	ok     float64
+}
 
-	prometheusNetworkPNICSpeed = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "host",
-		Name:      "network_pnic_speed",
-		Help:      "Network PNIC Speed",
-	}, []string{"host_name", "device", "mac"})
-	prometheusHostHardwareInfo = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "host",
-		Name:      "hardware_info",
-		Help:      "Vmware Host Hardware info",
-	}, []string{"host_name", "vendor", "model", "uuid", "cpu_model", "num_cpu", "cpu_mhz", "cpu_cores", "cpu_threads", "num_nics", "num_hbas"})
+type pnic struct {
+	device, mac string
+	speed       float64
+}
 
-	prometheusTotalDs = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "datastore",
-		Name:      "capacity_size",
-		Help:      "Datastore total",
-	}, []string{"ds_name", "host_name"})
-	prometheusUsageDs = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "datastore",
-		Name:      "freespace_size",
-		Help:      "Datastore free",
-	}, []string{"ds_name", "host_name"})
+type totalds struct {
+	dsname              string
+	capacity, freespace float64
+}
 
-	prometheusVmGuestInfo = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "vm",
-		Name:      "guest_info",
-		Help:      "VMWare Guest VM info",
-	}, []string{"vm_name", "host_name", "guest_id", "guest_full_name", "ip_addr"})
+type hvms struct {
+	VmName                    string
+	VmGuestId                 string
+	VmGuestFullName           string
+	VmGuestIpAddr             string
+	VmGuestStorageCommitted   float64
+	VmGuestStorageUnCommitted float64
+	VmBoot                    float64
+	VmCpuAval                 float64
+	VmCpuUsage                float64
+	VmNumCpu                  float64
+	VmMemAval                 float64
+	VmMemUsage                float64
+	Perf                      vmPerf
+}
+type vmPerf struct {
+	CPU_COSTOP_SUMMATION              float64
+	CPU_DEMANDENTITLEMENTRATIO_LATEST float64
+	CPU_DEMAND_AVERAGE                float64
+	CPU_ENTITLEMENT_LATEST            float64
+	CPU_IDLE_SUMMATION                float64
+	CPU_LATENCY_AVERAGE               float64
+	CPU_MAXLIMITED_SUMMATION          float64
+	CPU_OVERLAP_SUMMATION             float64
+	CPU_READINESS_AVERAGE             float64
+	CPU_READY_SUMMATION               float64
+	CPU_RUN_SUMMATION                 float64
+	CPU_SWAPWAIT_SUMMATION            float64
+	CPU_SYSTEM_SUMMATION              float64
+	CPU_USAGEMHZ_AVERAGE              float64
+	CPU_USAGEMHZ_MAXIMUM              float64
+	CPU_USAGEMHZ_MINIMUM              float64
+	CPU_USAGEMHZ_NONE                 float64
+	CPU_USAGE_AVERAGE                 float64
+	CPU_USAGE_MAXIMUM                 float64
+	CPU_USAGE_MINIMUM                 float64
+	CPU_USAGE_NONE                    float64
+	CPU_USED_SUMMATION                float64
+	CPU_WAIT_SUMMATION                float64
+	DATASTORE_MAXTOTALLATENCY_LATEST  float64
+	DISK_MAXTOTALLATENCY_LATEST       float64
+	DISK_READ_AVERAGE                 float64
+	DISK_USAGE_AVERAGE                float64
+	DISK_USAGE_MAXIMUM                float64
+	DISK_USAGE_MINIMUM                float64
+	DISK_USAGE_NONE                   float64
+	DISK_WRITE_AVERAGE                float64
+	MEM_ACTIVEWRITE_AVERAGE           float64
+	MEM_ACTIVE_AVERAGE                float64
+	MEM_ACTIVE_MAXIMUM                float64
+	MEM_ACTIVE_MINIMUM                float64
+	MEM_ACTIVE_NONE                   float64
+	MEM_COMPRESSED_AVERAGE            float64
+	MEM_COMPRESSIONRATE_AVERAGE       float64
+	MEM_CONSUMED_AVERAGE              float64
+	MEM_CONSUMED_MAXIMUM              float64
+	MEM_CONSUMED_MINIMUM              float64
+	MEM_CONSUMED_NONE                 float64
+	MEM_DECOMPRESSIONRATE_AVERAGE     float64
+	MEM_ENTITLEMENT_AVERAGE           float64
+	MEM_GRANTED_AVERAGE               float64
+	MEM_GRANTED_MAXIMUM               float64
+	MEM_GRANTED_MINIMUM               float64
+	MEM_GRANTED_NONE                  float64
+	MEM_LATENCY_AVERAGE               float64
+	MEM_LLSWAPINRATE_AVERAGE          float64
+	MEM_LLSWAPOUTRATE_AVERAGE         float64
+	MEM_LLSWAPUSED_AVERAGE            float64
+	MEM_LLSWAPUSED_MAXIMUM            float64
+	MEM_LLSWAPUSED_MINIMUM            float64
+	MEM_LLSWAPUSED_NONE               float64
+	MEM_OVERHEADMAX_AVERAGE           float64
+	MEM_OVERHEADTOUCHED_AVERAGE       float64
+	MEM_OVERHEAD_AVERAGE              float64
+	MEM_OVERHEAD_MAXIMUM              float64
+	MEM_OVERHEAD_MINIMUM              float64
+	MEM_OVERHEAD_NONE                 float64
+	MEM_SHARED_AVERAGE                float64
+	MEM_SHARED_MAXIMUM                float64
+	MEM_SHARED_MINIMUM                float64
+	MEM_SHARED_NONE                   float64
+	MEM_SWAPINRATE_AVERAGE            float64
+	MEM_SWAPIN_AVERAGE                float64
+	MEM_SWAPIN_MAXIMUM                float64
+	MEM_SWAPIN_MINIMUM                float64
+	MEM_SWAPIN_NONE                   float64
+	MEM_SWAPOUTRATE_AVERAGE           float64
+	MEM_SWAPOUT_AVERAGE               float64
+	MEM_SWAPOUT_MAXIMUM               float64
+	MEM_SWAPOUT_MINIMUM               float64
+	MEM_SWAPOUT_NONE                  float64
+	MEM_SWAPPED_AVERAGE               float64
+	MEM_SWAPPED_MAXIMUM               float64
+	MEM_SWAPPED_MINIMUM               float64
+	MEM_SWAPPED_NONE                  float64
+	MEM_SWAPTARGET_AVERAGE            float64
+	MEM_SWAPTARGET_MAXIMUM            float64
+	MEM_SWAPTARGET_MINIMUM            float64
+	MEM_SWAPTARGET_NONE               float64
+	MEM_USAGE_AVERAGE                 float64
+	MEM_USAGE_MAXIMUM                 float64
+	MEM_USAGE_MINIMUM                 float64
+	MEM_USAGE_NONE                    float64
+	MEM_VMMEMCTLTARGET_AVERAGE        float64
+	MEM_VMMEMCTLTARGET_MAXIMUM        float64
+	MEM_VMMEMCTLTARGET_MINIMUM        float64
+	MEM_VMMEMCTLTARGET_NONE           float64
+	MEM_VMMEMCTL_AVERAGE              float64
+	MEM_VMMEMCTL_MAXIMUM              float64
+	MEM_VMMEMCTL_MINIMUM              float64
+	MEM_VMMEMCTL_NONE                 float64
+	MEM_ZERO_AVERAGE                  float64
+	MEM_ZERO_MAXIMUM                  float64
+	MEM_ZERO_MINIMUM                  float64
+	MEM_ZERO_NONE                     float64
+	MEM_ZIPPED_LATEST                 float64
+	MEM_ZIPSAVED_LATEST               float64
+	NET_BROADCASTRX_SUMMATION         float64
+	NET_BROADCASTTX_SUMMATION         float64
+	NET_BYTESRX_AVERAGE               float64
+	NET_BYTESTX_AVERAGE               float64
+	NET_DROPPEDRX_SUMMATION           float64
+	NET_DROPPEDTX_SUMMATION           float64
+	NET_MULTICASTRX_SUMMATION         float64
+	NET_MULTICASTTX_SUMMATION         float64
+	NET_PACKETSRX_SUMMATION           float64
+	NET_PACKETSTX_SUMMATION           float64
+	NET_PNICBYTESRX_AVERAGE           float64
+	NET_PNICBYTESTX_AVERAGE           float64
+	NET_RECEIVED_AVERAGE              float64
+	NET_TRANSMITTED_AVERAGE           float64
+	NET_USAGE_AVERAGE                 float64
+	NET_USAGE_MAXIMUM                 float64
+	NET_USAGE_MINIMUM                 float64
+	NET_USAGE_NONE                    float64
+	POWER_ENERGY_SUMMATION            float64
+	POWER_POWER_AVERAGE               float64
+	RESCPU_ACTAV15_LATEST             float64
+	RESCPU_ACTAV1_LATEST              float64
+	RESCPU_ACTAV5_LATEST              float64
+	RESCPU_ACTPK15_LATEST             float64
+	RESCPU_ACTPK1_LATEST              float64
+	RESCPU_ACTPK5_LATEST              float64
+	RESCPU_MAXLIMITED15_LATEST        float64
+	RESCPU_MAXLIMITED1_LATEST         float64
+	RESCPU_MAXLIMITED5_LATEST         float64
+	RESCPU_RUNAV15_LATEST             float64
+	RESCPU_RUNAV1_LATEST              float64
+	RESCPU_RUNAV5_LATEST              float64
+	RESCPU_RUNPK15_LATEST             float64
+	RESCPU_RUNPK1_LATEST              float64
+	RESCPU_RUNPK5_LATEST              float64
+	RESCPU_SAMPLECOUNT_LATEST         float64
+	RESCPU_SAMPLEPERIOD_LATEST        float64
+	SYS_HEARTBEAT_LATEST              float64
+	SYS_OSUPTIME_LATEST               float64
+	SYS_UPTIME_LATEST                 float64
+	VIRTUALDISK_READ_AVERAGE          float64
+	VIRTUALDISK_WRITE_AVERAGE         float64
+}
 
-	prometheusVmGuestStorageCommitted = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "vm",
-		Name:      "guest_storage_committed",
-		Help:      "VMWare Guest VM storage committed",
-	}, []string{"vm_name", "host_name"})
+type hwInfo struct {
+	Vendor        string
+	Model         string
+	Uuid          string
+	CpuModel      string
+	NumCpuPkgs    float64
+	CpuMhz        float64
+	NumCpuCores   float64
+	NumCpuThreads float64
+	NumNics       float64
+	NumHBAs       float64
+}
 
-	prometheusVmGuestStorageUnCommitted = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "vm",
-		Name:      "guest_storage_uncommitted",
-		Help:      "VMWare Guest VM storage uncommitted",
-	}, []string{"vm_name", "host_name"})
+type Status struct {
+	HostName         string
+	HostPowerState   float64
+	HostBoot         float64
+	TotalCpu         float64
+	UsageCpu         float64
+	TotalMem         float64
+	UsageMem         float64
+	DiskOk           []diskOk
+	NetworkPNICSpeed []pnic
+	HW               hwInfo
+	DS               []totalds
+	VMS              []hvms
+}
 
-	prometheusVmBoot = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "vm",
-		Name:      "boot_timestamp_seconds",
-		Help:      "VMWare VM boot time in seconds",
-	}, []string{"vm_name", "host_name"})
-	prometheusVmCpuAval = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "vm",
-		Name:      "cpu_avaleblemhz",
-		Help:      "VMWare VM usage CPU",
-	}, []string{"vm_name", "host_name"})
-	prometheusVmCpuUsage = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "vm",
-		Name:      "cpu_usagemhz",
-		Help:      "VMWare VM usage CPU",
-	}, []string{"vm_name", "host_name"})
-	prometheusVmNumCpu = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "vm",
-		Name:      "num_cpu",
-		Help:      "Available number of cores",
-	}, []string{"vm_name", "host_name"})
-	prometheusVmMemAval = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "vm",
-		Name:      "mem_avaleble",
-		Help:      "Available memory",
-	}, []string{"vm_name", "host_name"})
-	prometheusVmMemUsage = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "vm",
-		Name:      "mem_usage",
-		Help:      "Usage memory",
-	}, []string{"vm_name", "host_name"})
-	prometheusVmPerfMon = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: namespace,
-		Subsystem: "vm",
-		Name:      "perf_mon",
-		Help:      "Performance monitor metric",
-	}, []string{"vm_name", "host_name", "metric_instance", "metric_name", "metric_unit"})
-)
-
-func RegisterMetrics() {
-	prometheus.MustRegister(
-		version.NewCollector("vmware_exporter"),
-		prometheusHostPowerState,
-		prometheusHostBoot,
-		prometheusTotalCpu,
-		prometheusUsageCpu,
-		prometheusTotalMem,
-		prometheusUsageMem,
-		prometheusDiskOk,
-		prometheusNetworkPNICSpeed,
-		prometheusHostHardwareInfo,
-		prometheusTotalDs,
-		prometheusUsageDs,
-
-		prometheusVmGuestInfo,
-		prometheusVmGuestStorageCommitted,
-		prometheusVmGuestStorageUnCommitted,
-		prometheusVmBoot,
-		prometheusVmCpuAval,
-		prometheusVmNumCpu,
-		prometheusVmMemAval,
-		prometheusVmMemUsage,
-		prometheusVmCpuUsage,
-		prometheusVmPerfMon)
+func RegisterExporter() {
+	prometheus.MustRegister(version.NewCollector("vmware_exporter"))
 }
