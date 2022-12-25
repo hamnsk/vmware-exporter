@@ -26,6 +26,9 @@ type Collector struct {
 	TotalDs                   *prometheus.Desc
 	UsageDs                   *prometheus.Desc
 	VmGuestInfo               *prometheus.Desc
+	VmGuestToolsStatus        *prometheus.Desc
+	VmGuestToolsVersion       *prometheus.Desc
+	VmGuestPowerState         *prometheus.Desc
 	VmGuestStorageCommitted   *prometheus.Desc
 	VmGuestStorageUnCommitted *prometheus.Desc
 	VmBoot                    *prometheus.Desc
@@ -301,6 +304,24 @@ func NewCollector(ss Service) *Collector {
 			[]string{"vm_name", "host_name", "guest_id", "guest_full_name", "ip_addr"},
 			nil,
 		),
+		VmGuestPowerState: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "vm", "power_state"),
+			"VMWare Guest Power State info",
+			[]string{"vm_name", "host_name"},
+			nil,
+		),
+		VmGuestToolsStatus: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "vm", "guest_tools_status"),
+			"VMWare Guest Tools Status info",
+			[]string{"vm_name", "host_name"},
+			nil,
+		),
+		VmGuestToolsVersion: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "vm", "guest_tools_version"),
+			"VMWare Guest Tools Status info",
+			[]string{"vm_name", "host_name"},
+			nil,
+		),
 		VmGuestStorageCommitted: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "vm", "guest_storage_committed"),
 			"VMWare Guest VM storage committed",
@@ -502,7 +523,7 @@ func NewCollector(ss Service) *Collector {
 		),
 		DiskReadAverage: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "vm", "disk_read_average"),
-			"Average number of read commands issued per second to the datastore during the collection interval.",
+			"Average number of kilobytes read from the disk each second during the collection interval. kiloBytesPerSecond",
 			[]string{"vm_name", "host_name"},
 			nil,
 		),
@@ -1232,6 +1253,9 @@ func (c Collector) Describe(descs chan<- *prometheus.Desc) {
 		c.TotalDs,
 		c.UsageDs,
 		c.VmGuestInfo,
+		c.VmGuestPowerState,
+		c.VmGuestToolsStatus,
+		c.VmGuestToolsVersion,
 		c.VmGuestStorageCommitted,
 		c.VmGuestStorageUnCommitted,
 		c.VmBoot,
@@ -1525,6 +1549,24 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 			prometheus.GaugeValue,
 			1,
 			vm.VmName, s.HostName, vm.VmGuestId, vm.VmGuestFullName, vm.VmGuestIpAddr,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.VmGuestPowerState,
+			prometheus.GaugeValue,
+			vm.VmPowerState,
+			vm.VmName, s.HostName,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.VmGuestToolsStatus,
+			prometheus.GaugeValue,
+			vm.VmGuestToolsStatus,
+			vm.VmName, s.HostName,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.VmGuestToolsVersion,
+			prometheus.GaugeValue,
+			vm.VmGuestToolsVersion,
+			vm.VmName, s.HostName,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.VmGuestStorageCommitted,

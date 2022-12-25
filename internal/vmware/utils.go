@@ -41,6 +41,34 @@ func powerState(s types.HostSystemPowerState) float64 {
 	return 0
 }
 
+func powerStateVM(s types.VirtualMachinePowerState) float64 {
+	if s == "poweredOn" {
+		return 1
+	}
+	if s == "poweredOff" {
+		return 2
+	}
+	if s == "standBy" {
+		return 3
+	}
+	return 0
+}
+
+func guestToolsStatus(s string) float64 {
+	if s == "toolsOk" {
+		return 1
+	}
+
+	return 0
+}
+
+func guestToolsVersion(s string) float64 {
+	if s == "guestToolsUnmanaged" {
+		return 0
+	}
+	return 1
+}
+
 func maintenanceMode(s bool) float64 {
 	if s {
 		return 1

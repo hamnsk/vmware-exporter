@@ -353,7 +353,10 @@ func (s *service) status() (*Status, error) {
 
 		status.VMS = append(status.VMS, hvms{
 			VmName:                    vmname,
+			VmPowerState:              powerStateVM(vm.Summary.Runtime.PowerState),
 			VmGuestId:                 vm.Summary.Guest.GuestId,
+			VmGuestToolsStatus:        guestToolsStatus(string(vm.Summary.Guest.ToolsStatus)),
+			VmGuestToolsVersion:       guestToolsVersion(vm.Summary.Guest.ToolsVersionStatus),
 			VmGuestFullName:           vm.Summary.Guest.GuestFullName,
 			VmGuestIpAddr:             vm.Summary.Guest.IpAddress,
 			VmGuestStorageCommitted:   float64(vm.Summary.Storage.Committed),

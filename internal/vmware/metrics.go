@@ -23,8 +23,12 @@ type totalds struct {
 }
 
 type hvms struct {
-	VmName                    string
-	VmGuestId                 string
+	VmName              string
+	VmPowerState        float64
+	VmGuestId           string
+	VmGuestToolsStatus  float64
+	VmGuestToolsVersion float64
+
 	VmGuestFullName           string
 	VmGuestIpAddr             string
 	VmGuestStorageCommitted   float64
