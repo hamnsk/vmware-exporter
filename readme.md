@@ -9,6 +9,12 @@ Collect metrics from ESXi Host and VM's performance metrics
 > If someone can test this functionality I will be glad. 
 > It would be ideal to have access to it for further product development.
 
+## Screenshots
+### Cluster Overview
+![Screen 1](./assets/screenshots/VMware%20Cluster%20Owerview%201.png "Cluster Overview")
+![Screen 2](./assets/screenshots/VMware%20Cluster%20Owerview%202.png "Cluster Overview")
+![Screen 3](./assets/screenshots/VMware%20Cluster%20Owerview%203.png "Cluster Overview")
+
 ## Road Map
 
 * Create Grafana Dashboards
