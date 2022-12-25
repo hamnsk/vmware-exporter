@@ -8,6 +8,7 @@ import (
 type Collector struct {
 	ss                        Service
 	HostPowerState            *prometheus.Desc
+	HostMaintenanceMode       *prometheus.Desc
 	HostBoot                  *prometheus.Desc
 	TotalCpu                  *prometheus.Desc
 	UsageCpu                  *prometheus.Desc
@@ -188,6 +189,12 @@ func NewCollector(ss Service) *Collector {
 		HostPowerState: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "host", "power_state"),
 			"poweredOn 1, poweredOff 2, standBy 3, other 0",
+			[]string{"host_name"},
+			nil,
+		),
+		HostMaintenanceMode: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "host", "maintenance_mode"),
+			"Maintenance mode 1 true, 0 false",
 			[]string{"host_name"},
 			nil,
 		),
@@ -1207,6 +1214,7 @@ func NewCollector(ss Service) *Collector {
 func (c Collector) Describe(descs chan<- *prometheus.Desc) {
 	ds := []*prometheus.Desc{
 		c.HostPowerState,
+		c.HostMaintenanceMode,
 		c.HostBoot,
 		c.TotalCpu,
 		c.UsageCpu,
@@ -1398,6 +1406,12 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 		c.HostPowerState,
 		prometheus.GaugeValue,
 		s.HostPowerState,
+		s.HostName,
+	)
+	ch <- prometheus.MustNewConstMetric(
+		c.HostMaintenanceMode,
+		prometheus.GaugeValue,
+		s.HostMaintenanceMode,
 		s.HostName,
 	)
 	ch <- prometheus.MustNewConstMetric(

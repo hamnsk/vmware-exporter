@@ -65,18 +65,19 @@ func (s *service) error(err error) {
 
 func (s *service) status() (*Status, error) {
 	status := Status{
-		HostName:         "",
-		HostPowerState:   0,
-		HostBoot:         0,
-		TotalCpu:         0,
-		UsageCpu:         0,
-		TotalMem:         0,
-		UsageMem:         0,
-		DiskOk:           []diskOk{},
-		NetworkPNICSpeed: []pnic{},
-		HW:               hwInfo{},
-		DS:               []totalds{},
-		VMS:              []hvms{},
+		HostName:            "",
+		HostPowerState:      0,
+		HostMaintenanceMode: 0,
+		HostBoot:            0,
+		TotalCpu:            0,
+		UsageCpu:            0,
+		TotalMem:            0,
+		UsageMem:            0,
+		DiskOk:              []diskOk{},
+		NetworkPNICSpeed:    []pnic{},
+		HW:                  hwInfo{},
+		DS:                  []totalds{},
+		VMS:                 []hvms{},
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), s.scrapeTimeout*time.Second)
@@ -370,6 +371,7 @@ func (s *service) status() (*Status, error) {
 
 	status.HostName = hss[0].Summary.Config.Name
 	status.HostPowerState = powerState(hss[0].Summary.Runtime.PowerState)
+	status.HostMaintenanceMode = maintenanceMode(hss[0].Summary.Runtime.InMaintenanceMode)
 	status.HostBoot = float64(hss[0].Summary.Runtime.BootTime.Unix())
 	status.TotalCpu = totalCpu(hss[0])
 	status.UsageCpu = float64(hss[0].Summary.QuickStats.OverallCpuUsage)

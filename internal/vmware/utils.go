@@ -41,6 +41,13 @@ func powerState(s types.HostSystemPowerState) float64 {
 	return 0
 }
 
+func maintenanceMode(s bool) float64 {
+	if s {
+		return 1
+	}
+	return 0
+}
+
 func perfMon(ctx context.Context, c *govmomi.Client, l *logging.Logger, vms []types.ManagedObjectReference) map[string][]vmMetric {
 
 	var perfMetricsResult []vmMetric

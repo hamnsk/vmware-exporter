@@ -197,18 +197,19 @@ type hwInfo struct {
 }
 
 type Status struct {
-	HostName         string
-	HostPowerState   float64
-	HostBoot         float64
-	TotalCpu         float64
-	UsageCpu         float64
-	TotalMem         float64
-	UsageMem         float64
-	DiskOk           []diskOk
-	NetworkPNICSpeed []pnic
-	HW               hwInfo
-	DS               []totalds
-	VMS              []hvms
+	HostName            string
+	HostPowerState      float64
+	HostMaintenanceMode float64
+	HostBoot            float64
+	TotalCpu            float64
+	UsageCpu            float64
+	TotalMem            float64
+	UsageMem            float64
+	DiskOk              []diskOk
+	NetworkPNICSpeed    []pnic
+	HW                  hwInfo
+	DS                  []totalds
+	VMS                 []hvms
 }
 
 func RegisterExporter() {
