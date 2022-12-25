@@ -15,6 +15,15 @@ Collect metrics from ESXi Host and VM's performance metrics
 ![Screen 2](./assets/screenshots/VMware%20Cluster%20Owerview%202.png "Cluster Overview")
 ![Screen 3](./assets/screenshots/VMware%20Cluster%20Owerview%203.png "Cluster Overview")
 
+### ESXi Hosts Information
+![Screen 1](./assets/screenshots/VMware%20ESX%20Hosts%20Information%201.png "ESXi Hosts Information")
+![Screen 2](./assets/screenshots/VMware%20ESX%20Hosts%20Information%202.png "ESXi Hosts Information")
+![Screen 3](./assets/screenshots/VMware%20ESX%20Hosts%20Information%203.png "ESXi Hosts Information")
+
+### VM Information
+![Screen 1](./assets/screenshots/VMware%20VM%20Information%201.png "VM Information")
+![Screen 2](./assets/screenshots/VMware%20VM%20Information%202.png "VM Information")
+
 ## Road Map
 
 * Create Grafana Dashboards
