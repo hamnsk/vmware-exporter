@@ -1510,13 +1510,13 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 			c.TotalDs,
 			prometheus.GaugeValue,
 			ds.capacity,
-			s.HostName, ds.dsname,
+			ds.dsname, s.HostName,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.UsageDs,
 			prometheus.GaugeValue,
 			ds.freespace,
-			s.HostName, ds.dsname,
+			ds.dsname, s.HostName,
 		)
 	}
 	for _, vm := range s.VMS {
