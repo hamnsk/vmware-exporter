@@ -6,19 +6,21 @@ import (
 	"reflect"
 )
 
-//var _ Client = &vaultClient{}
+var _ Client = &vaultClient{}
 
-type VaultClient struct {
-	Ttl    int
-	Client *api.Client
+type vaultClient struct {
+	Ttl      int
+	Client   *api.Client
+	AuthInfo *api.Secret
 }
 
 type Client interface {
 	GetTokenTTL() int
 	GetClient() *api.Client
+	GetAuthInfo() *api.Secret
 }
 
-func NewClient(cfg interface{}) (*VaultClient, error) {
+func NewClient(cfg interface{}) (Client, error) {
 	conf := api.DefaultConfig()
 	client, err := api.NewClient(conf)
 
@@ -35,7 +37,6 @@ func NewClient(cfg interface{}) (*VaultClient, error) {
 	client.SetAddress(vaultAddr)
 
 	resp, err := client.Logical().Write(fmt.Sprintf("auth/%s/login", authName), map[string]interface{}{
-		//resp, err := client.Logical().Write("auth/approle/login", map[string]interface{}{
 		"role_id": roleId,
 	})
 	if err != nil {
@@ -43,16 +44,21 @@ func NewClient(cfg interface{}) (*VaultClient, error) {
 	}
 
 	client.SetToken(resp.Auth.ClientToken)
-	return &VaultClient{
-		Ttl:    resp.Auth.LeaseDuration,
-		Client: client,
+	return &vaultClient{
+		Ttl:      resp.Auth.LeaseDuration,
+		Client:   client,
+		AuthInfo: resp,
 	}, nil
 }
 
-//func (c *vaultClient) GetTokenTTL() int {
-//	return c.Ttl
-//}
-//
-//func (c *vaultClient) GetClient() *api.Client {
-//	return c.Client
-//}
+func (c *vaultClient) GetTokenTTL() int {
+	return c.Ttl
+}
+
+func (c *vaultClient) GetClient() *api.Client {
+	return c.Client
+}
+
+func (c *vaultClient) GetAuthInfo() *api.Secret {
+	return c.AuthInfo
+}

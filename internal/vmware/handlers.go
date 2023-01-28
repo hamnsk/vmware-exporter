@@ -78,12 +78,14 @@ func (h *exporterHandler) probe(w http.ResponseWriter, r *http.Request) {
 			secretStoreName := appCfg.FieldByName("VaultSecretStoreName").Interface().(string)
 			if len(secretStoreName) == 0 {
 				h.logger.Error("name of kv2 secret store must be specified")
+				http.Error(w, "name of kv2 secret store must be specified", http.StatusBadRequest)
 				return
 			}
 
 			secretStorePath := appCfg.FieldByName("VaultSecretStorePath").Interface().(string)
 			if len(secretStorePath) == 0 {
 				h.logger.Error("path for secret must be specified")
+				http.Error(w, "path for secret must be specified", http.StatusBadRequest)
 				return
 			}
 
@@ -92,8 +94,15 @@ func (h *exporterHandler) probe(w http.ResponseWriter, r *http.Request) {
 				fmt.Sprintf("%s/%s", secretStorePath, target),
 			)
 			if err != nil {
-				h.logger.Error(fmt.Sprintf("error occurred when get credentials from Vaukt for target: %s", target))
+				h.logger.Error(
+					fmt.Sprintf("error occurred when get credentials from Vault for target: %s", target),
+				)
 				h.logger.Error(err.Error())
+				http.Error(
+					w,
+					fmt.Sprintf("error occurred when get credentials from Vault for target: %s", target),
+					http.StatusBadRequest,
+				)
 				return
 			}
 

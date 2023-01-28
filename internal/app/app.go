@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/go-co-op/gocron"
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/vault/api"
 	"net/http"
@@ -44,38 +43,36 @@ func Run() int {
 			app.logger.Error(err.Error())
 		}
 
-		//app.tokenTTL = vaultClient.GetTokenTTL()
-		//app.vaultClient = vaultClient.GetClient()
+		app.tokenTTL = vaultClient.GetTokenTTL()
+		app.vaultClient = vaultClient.GetClient()
 
-		app.tokenTTL = vaultClient.Ttl
-		app.vaultClient = vaultClient.Client
+		watcher, err := app.vaultClient.NewLifetimeWatcher(&api.LifetimeWatcherInput{
+			Secret:    vaultClient.GetAuthInfo(),
+			Increment: vaultClient.GetTokenTTL(),
+		})
 
-		interval := time.Duration(app.tokenTTL) * time.Second
-		nextTime := time.Now().Add(time.Since(time.Now()) + interval)
+		if err != nil {
+			app.logger.Error(fmt.Sprintf("unable to initialize new lifetime watcher for renewing auth token: %w", err))
+		}
+
+		go watcher.Start()
+		defer watcher.Stop()
 
 		go func() {
-			app.logger.Info(
-				fmt.Sprintf("Start job for renew Vault token every: %d seconds", app.tokenTTL),
-				app.logger.String("vault_addr", app.vaultClient.Address()),
-			)
-			s := gocron.NewScheduler(time.Local)
-			_, err := s.Every(app.tokenTTL).Second().Do(func() {
-				app.logger.Info(fmt.Sprintf("Renew Vault Token by TTL. TTL is: %d", app.tokenTTL))
-				vaultClient, err := vault.NewClient(app.config)
-				if err != nil {
-					app.logger.Error(err.Error())
+			for {
+				select {
+				case err := <-watcher.DoneCh():
+					if err != nil {
+						app.logger.Error(fmt.Sprintf("Failed to renew token: %v. Re-attempting login.", err))
+					}
+					app.logger.Info("Token can no longer be renewed. Re-attempting login.")
+
+				case renewal := <-watcher.RenewCh():
+					app.logger.Info(fmt.Sprintf("Token successfully renewed at %s", renewal.RenewedAt))
 				}
-				//app.tokenTTL = vaultClient.GetTokenTTL()
-				//app.vaultClient = vaultClient.GetClient()
-				app.tokenTTL = vaultClient.Ttl
-				app.vaultClient = vaultClient.Client
-			})
-			if err != nil {
-				app.logger.Error(err.Error())
 			}
-			s.StartAt(nextTime)
-			s.StartBlocking()
 		}()
+
 	}
 
 	app.start()
@@ -112,11 +109,10 @@ func new() *app {
 	logger.Info("Application router initialized.")
 
 	return &app{
-		logger:    logger,
-		config:    cfg,
-		appRouter: router,
-		appSrv:    nil,
-		//vaultToken: "",
+		logger:      logger,
+		config:      cfg,
+		appRouter:   router,
+		appSrv:      nil,
 		tokenTTL:    0,
 		vaultClient: nil,
 	}
