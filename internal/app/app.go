@@ -2,7 +2,9 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/hashicorp/vault/api"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,22 +12,71 @@ import (
 	"syscall"
 	"time"
 	"vmware-exporter/internal/config"
+	"vmware-exporter/internal/vault"
 	"vmware-exporter/internal/version"
 	"vmware-exporter/internal/vmware"
 	"vmware-exporter/pkg/logging"
 )
 
 type app struct {
-	logger    logging.Logger
-	config    interface{}
-	appRouter *mux.Router
-	appSrv    *http.Server
+	logger      logging.Logger
+	config      interface{}
+	appRouter   *mux.Router
+	appSrv      *http.Server
+	tokenTTL    int
+	vaultClient *api.Client
+}
+
+func useVault(config interface{}) bool {
+	appCfg := reflect.ValueOf(config).Elem()
+	return appCfg.FieldByName("UseVault").Interface().(bool)
 }
 
 func Run() int {
 	app := new()
 	vmware.RegisterExporter()
+
+	if useVault(app.config) {
+		app.logger.Info("Use Vault as credential storage for VMWare authentication")
+		vaultClient, err := vault.NewClient(app.config)
+		if err != nil {
+			app.logger.Error(err.Error())
+		}
+
+		app.tokenTTL = vaultClient.GetTokenTTL()
+		app.vaultClient = vaultClient.GetClient()
+
+		watcher, err := app.vaultClient.NewLifetimeWatcher(&api.LifetimeWatcherInput{
+			Secret:    vaultClient.GetAuthInfo(),
+			Increment: vaultClient.GetTokenTTL(),
+		})
+
+		if err != nil {
+			app.logger.Error(fmt.Sprintf("unable to initialize new lifetime watcher for renewing auth token: %w", err))
+		}
+
+		go watcher.Start()
+		defer watcher.Stop()
+
+		go func() {
+			for {
+				select {
+				case err := <-watcher.DoneCh():
+					if err != nil {
+						app.logger.Error(fmt.Sprintf("Failed to renew token: %v. Re-attempting login.", err))
+					}
+					app.logger.Info("Token can no longer be renewed. Re-attempting login.")
+
+				case renewal := <-watcher.RenewCh():
+					app.logger.Info(fmt.Sprintf("Token successfully renewed at %s", renewal.RenewedAt))
+				}
+			}
+		}()
+
+	}
+
 	app.start()
+
 	shutdownChan := make(chan os.Signal, 1)
 	hupChan := make(chan os.Signal, 1)
 	signal.Notify(shutdownChan, syscall.SIGABRT, syscall.SIGQUIT, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
@@ -58,10 +109,12 @@ func new() *app {
 	logger.Info("Application router initialized.")
 
 	return &app{
-		logger:    logger,
-		config:    cfg,
-		appRouter: router,
-		appSrv:    nil,
+		logger:      logger,
+		config:      cfg,
+		appRouter:   router,
+		appSrv:      nil,
+		tokenTTL:    0,
+		vaultClient: nil,
 	}
 }
 
@@ -71,7 +124,7 @@ func (a *app) start() {
 }
 
 func (a *app) startAppHTTPServer() {
-	exporterHandler := vmware.GetHandler(&a.logger, a.config)
+	exporterHandler := vmware.GetHandler(&a.logger, a.config, a.vaultClient)
 	exporterHandler.Register(a.appRouter)
 
 	cfg := reflect.ValueOf(a.config).Elem()
