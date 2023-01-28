@@ -107,7 +107,7 @@ Then create a key tree access policy,
 we need read access to the keys, and a listing of available targets
 
 ```shell
-$ vault policy write -tls-skip-verify vmwere-exporter -<<EOF
+vault policy write -tls-skip-verify vmwere-exporter -<<EOF
 path "secrets/esxi/monitoring/*" {
 capabilities = [ "read", "list" ]
 }
