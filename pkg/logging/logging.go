@@ -26,7 +26,7 @@ func GetLogger() Logger {
 
 func init() {
 	config := zap.NewProductionConfig()
-	level, ok := logLevel[os.Getenv("APP_LOG_LEVEL")]
+	level, ok := logLevel[os.Getenv("VMWARE_EXPORTER_LOG_LEVEL")]
 	if ok {
 		config.Level.SetLevel(level)
 	}

@@ -34,19 +34,19 @@ func NewService(l *logging.Logger, host string, config interface{}) Service {
 
 	vmwareUser := cfg.FieldByName("VmwareUser").Interface().(string)
 	if len(vmwareUser) == 0 {
-		l.Info("set default user name")
+		l.Debug("user name for VMWare auth not specified, use default user name")
 		vmwareUser = "monitoring"
 	}
 
 	vmwarePass := cfg.FieldByName("VmwarePass").Interface().(string)
 	if len(vmwarePass) == 0 {
-		l.Info("set default password ")
+		l.Debug("user password for VMWare auth not specified, use default password")
 		vmwarePass = "password"
 	}
 
 	scrapeTimeout, err := time.ParseDuration(cfg.FieldByName("ScrapeTimeout").Interface().(string))
 	if err != nil {
-		l.Info("set default timeout ")
+		l.Debug("scrape timeout not specified, use default timeout")
 		scrapeTimeout = 60
 	}
 

@@ -2,7 +2,10 @@ package app
 
 import (
 	"context"
+	"fmt"
+	"github.com/go-co-op/gocron"
 	"github.com/gorilla/mux"
+	"github.com/hashicorp/vault/api"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,22 +13,73 @@ import (
 	"syscall"
 	"time"
 	"vmware-exporter/internal/config"
+	"vmware-exporter/internal/vault"
 	"vmware-exporter/internal/version"
 	"vmware-exporter/internal/vmware"
 	"vmware-exporter/pkg/logging"
 )
 
 type app struct {
-	logger    logging.Logger
-	config    interface{}
-	appRouter *mux.Router
-	appSrv    *http.Server
+	logger      logging.Logger
+	config      interface{}
+	appRouter   *mux.Router
+	appSrv      *http.Server
+	tokenTTL    int
+	vaultClient *api.Client
+}
+
+func useVault(config interface{}) bool {
+	appCfg := reflect.ValueOf(config).Elem()
+	return appCfg.FieldByName("UseVault").Interface().(bool)
 }
 
 func Run() int {
 	app := new()
 	vmware.RegisterExporter()
+
+	if useVault(app.config) {
+		app.logger.Info("Use Vault as credential storage for VMWare authentication")
+		vaultClient, err := vault.NewClient(app.config)
+		if err != nil {
+			app.logger.Error(err.Error())
+		}
+
+		//app.tokenTTL = vaultClient.GetTokenTTL()
+		//app.vaultClient = vaultClient.GetClient()
+
+		app.tokenTTL = vaultClient.Ttl
+		app.vaultClient = vaultClient.Client
+
+		interval := time.Duration(app.tokenTTL) * time.Second
+		nextTime := time.Now().Add(time.Since(time.Now()) + interval)
+
+		go func() {
+			app.logger.Info(
+				fmt.Sprintf("Start job for renew Vault token every: %d seconds", app.tokenTTL),
+				app.logger.String("vault_addr", app.vaultClient.Address()),
+			)
+			s := gocron.NewScheduler(time.Local)
+			_, err := s.Every(app.tokenTTL).Second().Do(func() {
+				app.logger.Info(fmt.Sprintf("Renew Vault Token by TTL. TTL is: %d", app.tokenTTL))
+				vaultClient, err := vault.NewClient(app.config)
+				if err != nil {
+					app.logger.Error(err.Error())
+				}
+				//app.tokenTTL = vaultClient.GetTokenTTL()
+				//app.vaultClient = vaultClient.GetClient()
+				app.tokenTTL = vaultClient.Ttl
+				app.vaultClient = vaultClient.Client
+			})
+			if err != nil {
+				app.logger.Error(err.Error())
+			}
+			s.StartAt(nextTime)
+			s.StartBlocking()
+		}()
+	}
+
 	app.start()
+
 	shutdownChan := make(chan os.Signal, 1)
 	hupChan := make(chan os.Signal, 1)
 	signal.Notify(shutdownChan, syscall.SIGABRT, syscall.SIGQUIT, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
@@ -62,6 +116,9 @@ func new() *app {
 		config:    cfg,
 		appRouter: router,
 		appSrv:    nil,
+		//vaultToken: "",
+		tokenTTL:    0,
+		vaultClient: nil,
 	}
 }
 
@@ -71,7 +128,7 @@ func (a *app) start() {
 }
 
 func (a *app) startAppHTTPServer() {
-	exporterHandler := vmware.GetHandler(&a.logger, a.config)
+	exporterHandler := vmware.GetHandler(&a.logger, a.config, a.vaultClient)
 	exporterHandler.Register(a.appRouter)
 
 	cfg := reflect.ValueOf(a.config).Elem()

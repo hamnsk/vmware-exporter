@@ -2,10 +2,13 @@ package vmware
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/hashicorp/vault/api"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
+	"reflect"
 	"vmware-exporter/internal/config"
 	"vmware-exporter/pkg/logging"
 )
@@ -30,18 +33,20 @@ const homeResponse = `<html>
 var _ Handler = &exporterHandler{}
 
 type exporterHandler struct {
-	logger *logging.Logger
-	cfg    interface{}
+	logger      *logging.Logger
+	cfg         interface{}
+	vaultClient *api.Client
 }
 
 type Handler interface {
 	Register(router *mux.Router)
 }
 
-func GetHandler(logger *logging.Logger, cfg interface{}) Handler {
+func GetHandler(logger *logging.Logger, cfg interface{}, vaultClient *api.Client) Handler {
 	h := exporterHandler{
-		logger: logger,
-		cfg:    cfg,
+		logger:      logger,
+		cfg:         cfg,
+		vaultClient: vaultClient,
 	}
 	return &h
 }
@@ -68,6 +73,34 @@ func (h *exporterHandler) probe(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(target) > 1 {
+		appCfg := reflect.ValueOf(h.cfg).Elem()
+		if appCfg.FieldByName("UseVault").Interface().(bool) {
+			secretStoreName := appCfg.FieldByName("VaultSecretStoreName").Interface().(string)
+			if len(secretStoreName) == 0 {
+				h.logger.Error("name of kv2 secret store must be specified")
+				return
+			}
+
+			secretStorePath := appCfg.FieldByName("VaultSecretStorePath").Interface().(string)
+			if len(secretStorePath) == 0 {
+				h.logger.Error("path for secret must be specified")
+				return
+			}
+
+			data, err := h.vaultClient.KVv2(secretStoreName).Get(
+				r.Context(),
+				fmt.Sprintf("%s/%s", secretStorePath, target),
+			)
+			if err != nil {
+				h.logger.Error(fmt.Sprintf("error occurred when get credentials from Vaukt for target: %s", target))
+				h.logger.Error(err.Error())
+				return
+			}
+
+			appCfg.FieldByName("VmwareUser").SetString(data.Data["username"].(string))
+			appCfg.FieldByName("VmwarePass").SetString(data.Data["password"].(string))
+		}
+
 		svc := NewService(h.logger, target, h.cfg)
 		reg := prometheus.NewRegistry()
 		prometheus.DefaultRegisterer = reg

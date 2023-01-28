@@ -125,3 +125,6 @@ VMWare exporter is configured via a environment variables.
 | VMWARE_EXPORTER_SCRAPE_TIMEOUT     | 60s        | Time duration e.g. 30s or 1m |  
 
 
+## VMWare Api Reference
+
+* [vSphere Web Services API](https://developer.vmware.com/apis/704/vsphere/api_versions_all_index.html#dataObjects)
