@@ -91,16 +91,16 @@ the exporter will find two secrets "username" and "password" in the path you spe
 The path must be specified with the target host.
 
 ```shell
-$ vault kv put {{kv2_engine_name}}/{{path}}/{{target}} username="monitoring"
-$ vault kv put {{kv2_engine_name}}/{{path}}/{{target}} password="monitoring"
+vault kv put {{kv2_engine_name}}/{{path}}/{{target}} username="monitoring"
+vault kv put {{kv2_engine_name}}/{{path}}/{{target}} password="monitoring"
 ```
 
 For example if we want to write authorization data for the esxi0001 host,
 we need to specify to execute the following commands:
 
 ```shell
-$ vault kv put secrets/esxi/monitoring/esxi0001 username="monitoring"
-$ vault kv patch secrets/esxi/monitoring/esxi0001 password="monitoring"
+vault kv put secrets/esxi/monitoring/esxi0001 username="monitoring"
+vault kv patch secrets/esxi/monitoring/esxi0001 password="monitoring"
 ```
 
 Then create a key tree access policy,
@@ -127,27 +127,27 @@ in order to exclude the possibility of obtaining a secret and a token from anoth
 Can be limited to 1 host, such as where the exporter is running.
 
 ```shell
-$ vault write -tls-skip-verify auth/approle/role/vmware-exporter \
-  token_policies="vmwere-exporter" \
-  token_ttl=5m \
-  token_max_ttl=10m \
-  secret_id_bound_cidrs="0.0.0.0/0","127.0.0.1/32" \
-  token_bound_cidrs="0.0.0.0/0","127.0.0.1/32" \
-  secret_id_ttl=5m policies="vmwere-exporter"\
-  bind_secret_id=false
+vault write -tls-skip-verify auth/approle/role/vmware-exporter \
+token_policies="vmwere-exporter" \
+token_ttl=5m \
+token_max_ttl=10m \
+secret_id_bound_cidrs="0.0.0.0/0","127.0.0.1/32" \
+token_bound_cidrs="0.0.0.0/0","127.0.0.1/32" \
+secret_id_ttl=5m policies="vmwere-exporter"\
+bind_secret_id=false
 ```
 
 Then check your App Role
 
 ```shell
-$ vault read -tls-skip-verify auth/approle/role/vmware-exporter-demo
+vault read -tls-skip-verify auth/approle/role/vmware-exporter-demo
 ```
 
 If all is well, then get the "role_id" parameter
 to set the value of the environment variable VMWARE_EXPORTER_VAULT_ROLE_ID.
 
 ```shell
-$ vault read -tls-skip-verify auth/approle/role/vmware-exporter/role-id
+vault read -tls-skip-verify auth/approle/role/vmware-exporter/role-id
 ```
 
 ### Finally, result screenshots
