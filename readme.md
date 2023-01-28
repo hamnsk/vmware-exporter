@@ -47,7 +47,7 @@ $ GOOS=linux GOARCH=amd64 make build
 
 ### Docker
 ```shell
-docker build -f ./Dockerfile.local -t vmware-exporter .
+$ docker build -f ./Dockerfile.local -t vmware-exporter .
 ```
 
 ## Running this software
@@ -108,10 +108,10 @@ we need read access to the keys, and a listing of available targets
 
 ```shell
 $ vault policy write -tls-skip-verify vmwere-exporter -<<EOF
-path "secrets/esxi/monitoring/*" {
-capabilities = [ "read", "list" ]
-}
-EOF
+  path "secrets/esxi/monitoring/*" {
+  capabilities = [ "read", "list" ]
+  }
+  EOF
 ```
 
 Then we need to install the policy created in the previous step for our role.
