@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/hashicorp/vault/api"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"reflect"
 	"vmware-exporter/internal/config"
+	"vmware-exporter/internal/vault"
 	"vmware-exporter/pkg/logging"
 )
 
@@ -35,14 +35,14 @@ var _ Handler = &exporterHandler{}
 type exporterHandler struct {
 	logger      *logging.Logger
 	cfg         interface{}
-	vaultClient *api.Client
+	vaultClient vault.Client
 }
 
 type Handler interface {
 	Register(router *mux.Router)
 }
 
-func GetHandler(logger *logging.Logger, cfg interface{}, vaultClient *api.Client) Handler {
+func GetHandler(logger *logging.Logger, cfg interface{}, vaultClient vault.Client) Handler {
 	h := exporterHandler{
 		logger:      logger,
 		cfg:         cfg,
@@ -89,7 +89,7 @@ func (h *exporterHandler) probe(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			data, err := h.vaultClient.KVv2(secretStoreName).Get(
+			data, err := h.vaultClient.GetClient().KVv2(secretStoreName).Get(
 				r.Context(),
 				fmt.Sprintf("%s/%s", secretStorePath, target),
 			)

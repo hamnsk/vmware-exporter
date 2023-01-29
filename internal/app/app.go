@@ -2,9 +2,7 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/hashicorp/vault/api"
 	"net/http"
 	"os"
 	"os/signal"
@@ -23,8 +21,7 @@ type app struct {
 	config      interface{}
 	appRouter   *mux.Router
 	appSrv      *http.Server
-	tokenTTL    int
-	vaultClient *api.Client
+	vaultClient vault.Client
 }
 
 func useVault(config interface{}) bool {
@@ -38,41 +35,18 @@ func Run() int {
 
 	if useVault(app.config) {
 		app.logger.Info("Use Vault as credential storage for VMWare authentication")
-		vaultClient, err := vault.NewClient(app.config)
+		vaultClient, err := vault.NewClient(app.config, &app.logger)
 		if err != nil {
 			app.logger.Error(err.Error())
 		}
 
-		app.tokenTTL = vaultClient.GetTokenTTL()
-		app.vaultClient = vaultClient.GetClient()
-
-		watcher, err := app.vaultClient.NewLifetimeWatcher(&api.LifetimeWatcherInput{
-			Secret:    vaultClient.GetAuthInfo(),
-			Increment: vaultClient.GetTokenTTL(),
-		})
-
-		if err != nil {
-			app.logger.Error(fmt.Sprintf("unable to initialize new lifetime watcher for renewing auth token: %w", err))
-		}
-
-		go watcher.Start()
-		defer watcher.Stop()
+		app.vaultClient = vaultClient
 
 		go func() {
 			for {
-				select {
-				case err := <-watcher.DoneCh():
-					if err != nil {
-						app.logger.Error(fmt.Sprintf("Failed to renew token: %v. Re-attempting login.", err))
-					}
-					app.logger.Info("Token can no longer be renewed. Re-attempting login.")
-
-				case renewal := <-watcher.RenewCh():
-					app.logger.Info(fmt.Sprintf("Token successfully renewed at %s", renewal.RenewedAt))
-				}
+				app.vaultClient.KeepAlive()
 			}
 		}()
-
 	}
 
 	app.start()
@@ -113,7 +87,6 @@ func new() *app {
 		config:      cfg,
 		appRouter:   router,
 		appSrv:      nil,
-		tokenTTL:    0,
 		vaultClient: nil,
 	}
 }
