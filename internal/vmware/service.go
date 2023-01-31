@@ -366,7 +366,7 @@ func (s *service) status() (*Status, error) {
 			VmCpuUsage:                float64(vm.Summary.QuickStats.OverallCpuUsage) * 1000 * 1000,
 			VmNumCpu:                  float64(vm.Summary.Config.NumCpu),
 			VmMemAval:                 float64(vm.Summary.Config.MemorySizeMB),
-			VmMemUsage:                float64(vm.Summary.QuickStats.GuestMemoryUsage) * 1024 * 1024,
+			VmMemUsage:                float64(vm.Summary.QuickStats.HostMemoryUsage) * 1024 * 1024,
 			Perf:                      vmPerfRes,
 		})
 

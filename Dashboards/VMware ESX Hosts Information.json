@@ -1582,7 +1582,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "vmware_exporter_vm_mem_usage{host_name=~\"$esxhost\"} * 10",
+          "expr": "vmware_exporter_vm_mem_usage{host_name=~\"$esxhost\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ vm_name }}",
