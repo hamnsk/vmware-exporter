@@ -1,6 +1,6 @@
 {
   "__inputs": [],
-  "__elements": {},
+  "__elements": [],
   "__requires": [
     {
       "type": "panel",
@@ -12,7 +12,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "9.1.6"
+      "version": "8.3.4"
     },
     {
       "type": "panel",
@@ -63,6 +63,7 @@
   "gnetId": 10076,
   "graphTooltip": 1,
   "id": null,
+  "iteration": 1675474106643,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -130,7 +131,7 @@
         },
         "textMode": "name"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -214,7 +215,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -295,7 +296,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -388,7 +389,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -484,7 +485,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -571,7 +572,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -653,7 +654,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -731,17 +732,20 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "vmware_exporter_vm_cpu_avaleblemhz{vm_name=~\"$vm\"}/vmware_exporter_vm_cpu_usagemhz{vm_name=~\"$vm\"} / 10",
+          "exemplar": true,
+          "expr": "vmware_exporter_vm_cpu_usagemhz{vm_name=~\"$vm\"} / vmware_exporter_vm_cpu_availablemhz{vm_name=~\"$vm\"} * 100",
           "format": "time_series",
           "instant": false,
+          "interval": "",
           "intervalFactor": 1,
+          "legendFormat": "",
           "refId": "A"
         }
       ],
@@ -809,7 +813,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -887,7 +891,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -969,17 +973,20 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "(vmware_exporter_vm_mem_avaleble{vm_name=~\"$vm\"})  ",
+          "exemplar": true,
+          "expr": "(vmware_exporter_vm_mem_available{vm_name=~\"$vm\"})  ",
           "format": "time_series",
           "instant": false,
+          "interval": "",
           "intervalFactor": 1,
+          "legendFormat": "",
           "refId": "A"
         }
       ],
@@ -1051,17 +1058,20 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "(vmware_exporter_vm_mem_active_average{vm_name=~\"$vm\"}) * 100 / (vmware_exporter_vm_mem_active_maximum{vm_name=~\"$vm\"})",
+          "exemplar": true,
+          "expr": "(vmware_exporter_vm_mem_consumed_average{vm_name=~\"$vm\"}) * 100 / (vmware_exporter_vm_mem_available{vm_name=~\"$vm\"}*1000)",
           "format": "time_series",
           "instant": false,
+          "interval": "",
           "intervalFactor": 1,
+          "legendFormat": "",
           "refId": "A"
         }
       ],
@@ -1130,7 +1140,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -1208,7 +1218,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -1266,7 +1276,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1280,8 +1290,10 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "vmware_exporter_vm_cpu_avaleblemhz{vm_name=~\"$vm\"}/vmware_exporter_vm_cpu_usagemhz{vm_name=~\"$vm\"} / 10",
+          "exemplar": true,
+          "expr": "vmware_exporter_vm_cpu_usagemhz{vm_name=~\"$vm\"} / vmware_exporter_vm_cpu_availablemhz{vm_name=~\"$vm\"} * 100",
           "format": "time_series",
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "Cpu Usage",
           "range": true,
@@ -1292,7 +1304,9 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "vmware_exporter_vm_cpu_demand_average{vm_name=~\"$vm\"}/vmware_exporter_vm_cpu_usagemhz{vm_name=~\"$vm\"} / 10",
+          "exemplar": true,
+          "expr": "vmware_exporter_vm_cpu_demand_average{vm_name=~\"$vm\"}/vmware_exporter_vm_cpu_availablemhz{vm_name=~\"$vm\"} * 100",
+          "interval": "",
           "legendFormat": "Cpu Demand",
           "range": true,
           "refId": "B"
@@ -1372,7 +1386,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1473,7 +1487,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1487,8 +1501,10 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "(vmware_exporter_vm_mem_active_average{vm_name=~\"$vm\"}) * 100 / (vmware_exporter_vm_mem_active_maximum{vm_name=~\"$vm\"})",
+          "exemplar": true,
+          "expr": "(vmware_exporter_vm_mem_consumed_average{vm_name=~\"$vm\"}) * 100 / (vmware_exporter_vm_mem_available{vm_name=~\"$vm\"}*1000)",
           "format": "time_series",
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "Memory Usage",
           "range": true,
@@ -1569,7 +1585,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1670,7 +1686,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1812,7 +1828,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1883,11 +1899,13 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
+        "type": "prometheus",
         "uid": "$datasource"
       },
       "fieldConfig": {
         "defaults": {
-          "links": []
+          "links": [],
+          "unit": "KBs"
         },
         "overrides": []
       },
@@ -1918,7 +1936,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1931,8 +1949,10 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "vmware_exporter_vm_vmware_exporter_exporter_{vm_name=~\"$vm\"}+vmware_exporter_vm_disk_write_average{vm_name=~\"$vm\"}",
+          "exemplar": true,
+          "expr": "vmware_exporter_vm_disk_read_average{vm_name=~\"$vm\"}+vmware_exporter_vm_disk_write_average{vm_name=~\"$vm\"}",
           "format": "time_series",
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "Total Usage",
           "refId": "A"
@@ -1941,7 +1961,9 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "vmware_exporter_vm_vmware_exporter_exporter_{vm_name=~\"$vm\"}",
+          "exemplar": true,
+          "expr": "vmware_exporter_vm_disk_read_average{vm_name=~\"$vm\"}",
+          "interval": "",
           "legendFormat": "Read Usage",
           "refId": "B"
         },
@@ -2027,7 +2049,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -2083,7 +2105,7 @@
       }
     }
   ],
-  "schemaVersion": 37,
+  "schemaVersion": 34,
   "style": "dark",
   "tags": [
     "vmware"

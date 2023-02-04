@@ -9,7 +9,7 @@
       "pluginName": "Prometheus"
     }
   ],
-  "__elements": {},
+  "__elements": [],
   "__requires": [
     {
       "type": "panel",
@@ -21,7 +21,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "9.1.6"
+      "version": "8.3.4"
     },
     {
       "type": "panel",
@@ -39,6 +39,12 @@
       "type": "panel",
       "id": "stat",
       "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
       "version": ""
     },
     {
@@ -76,6 +82,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
+  "iteration": 1675474093670,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -146,7 +153,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -226,7 +233,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -305,7 +312,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -385,7 +392,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -445,7 +452,7 @@
         "alertThreshold": true
       },
       "percentage": true,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -515,8 +522,6 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -677,7 +682,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -757,7 +762,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -836,7 +841,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -915,7 +920,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -998,7 +1003,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -1057,7 +1062,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1181,7 +1186,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -1264,7 +1269,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "datasource": {
@@ -1339,7 +1344,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "repeatDirection": "h",
       "targets": [
         {
@@ -1415,7 +1420,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "repeatDirection": "h",
       "targets": [
         {
@@ -1435,21 +1440,620 @@
       "type": "gauge"
     },
     {
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "center",
+            "displayMode": "color-text",
+            "filterable": false,
+            "minWidth": 150
+          },
+          "decimals": 2,
+          "displayName": "",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "build"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Build"
+              },
+              {
+                "id": "unit"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 42,
+      "options": {
+        "footer": {
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.3.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "vmware_exporter_host_product_info{} -0 ",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "__auto",
+          "refId": "Product Info"
+        }
+      ],
+      "title": "Product Information",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {
+            "reducers": []
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value #A": true,
+              "Value #B": false,
+              "Value #C": false,
+              "Value #CPU_CORES": true,
+              "Value #CPU_THREADS": true,
+              "Value #CPU_USAGE": true,
+              "Value #D": false,
+              "Value #HW_INFO": true,
+              "Value #J": false,
+              "Value #L": false,
+              "Value #MEM_MAX": true,
+              "Value #MEM_USAGE": true,
+              "Value #NET_RX": true,
+              "Value #NET_TX": true,
+              "Value #UPTIME": true,
+              "__name__": true,
+              "host_name": true,
+              "instance": true,
+              "job": true,
+              "uuid": true
+            },
+            "indexByName": {
+              "Time": 3,
+              "Value #CPU_CORES": 11,
+              "Value #CPU_THREADS": 12,
+              "Value #CPU_USAGE": 13,
+              "Value #HW_INFO": 7,
+              "Value #MEM_MAX": 9,
+              "Value #MEM_USAGE": 10,
+              "Value #NET_RX": 14,
+              "Value #NET_TX": 15,
+              "Value #UPTIME": 8,
+              "__name__": 22,
+              "api_version": 16,
+              "build": 17,
+              "full_name": 18,
+              "host_name": 4,
+              "instance": 5,
+              "job": 6,
+              "license_product_name": 1,
+              "license_version": 21,
+              "name": 0,
+              "os_type": 19,
+              "vendor": 2,
+              "version": 20
+            },
+            "renameByName": {
+              "Time": "",
+              "Value #B": "Memory",
+              "Value #C": "CPU Cores",
+              "Value #D": "Uptime",
+              "Value #J": "Net Download*",
+              "Value #K": "Net Upload*",
+              "Value #L": "CPU Threads",
+              "api_version": "API Version",
+              "build": "Build",
+              "cpu_model": "CPU Model",
+              "full_name": "Full Name",
+              "host_name": "Host Name",
+              "instance": "",
+              "license_product_name": "Product Name",
+              "license_version": "License Version",
+              "model": "Model",
+              "name": "Name",
+              "os_type": "OS Type",
+              "uuid": "Server UUID",
+              "vendor": "Vendor",
+              "version": "Version"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "id": 48,
+      "panels": [],
+      "title": "Hardware Sensors",
+      "type": "row"
+    },
+    {
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "center",
+            "displayMode": "color-text",
+            "filterable": false,
+            "minWidth": 150
+          },
+          "decimals": 2,
+          "displayName": "",
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "purple",
+                  "index": 0,
+                  "text": "UNKNOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "GREEN"
+                },
+                "2": {
+                  "color": "yellow",
+                  "index": 2,
+                  "text": "YELLOW"
+                },
+                "3": {
+                  "color": "red",
+                  "index": 3,
+                  "text": "RED"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "build"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Build"
+              },
+              {
+                "id": "unit"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 43,
+      "options": {
+        "footer": {
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.3.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "vmware_exporter_host_hardware_storage_sensor_info{} -0 ",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "__auto",
+          "refId": "Product Info"
+        }
+      ],
+      "title": "Hardware Storage Sensor Information",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {
+            "reducers": []
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value #A": true,
+              "Value #B": false,
+              "Value #C": false,
+              "Value #CPU_CORES": true,
+              "Value #CPU_THREADS": true,
+              "Value #CPU_USAGE": true,
+              "Value #D": false,
+              "Value #HW_INFO": true,
+              "Value #J": false,
+              "Value #L": false,
+              "Value #MEM_MAX": true,
+              "Value #MEM_USAGE": true,
+              "Value #NET_RX": true,
+              "Value #NET_TX": true,
+              "Value #UPTIME": true,
+              "__name__": true,
+              "host_name": true,
+              "instance": true,
+              "job": true,
+              "uuid": true
+            },
+            "indexByName": {
+              "Time": 3,
+              "Value #CPU_CORES": 11,
+              "Value #CPU_THREADS": 12,
+              "Value #CPU_USAGE": 13,
+              "Value #HW_INFO": 7,
+              "Value #MEM_MAX": 9,
+              "Value #MEM_USAGE": 10,
+              "Value #NET_RX": 14,
+              "Value #NET_TX": 15,
+              "Value #UPTIME": 8,
+              "__name__": 22,
+              "api_version": 16,
+              "build": 17,
+              "full_name": 18,
+              "host_name": 4,
+              "instance": 5,
+              "job": 6,
+              "license_product_name": 1,
+              "license_version": 21,
+              "name": 0,
+              "os_type": 19,
+              "vendor": 2,
+              "version": 20
+            },
+            "renameByName": {
+              "Time": "",
+              "Value #B": "Memory",
+              "Value #C": "CPU Cores",
+              "Value #D": "Uptime",
+              "Value #J": "Net Download*",
+              "Value #K": "Net Upload*",
+              "Value #L": "CPU Threads",
+              "api_version": "API Version",
+              "build": "Build",
+              "cpu_model": "CPU Model",
+              "full_name": "Full Name",
+              "host_name": "Host Name",
+              "instance": "",
+              "license_product_name": "Product Name",
+              "license_version": "License Version",
+              "model": "Model",
+              "name": "Name",
+              "os_type": "OS Type",
+              "uuid": "Server UUID",
+              "vendor": "Vendor",
+              "version": "Version"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left",
+            "displayMode": "color-text",
+            "filterable": false,
+            "minWidth": 150
+          },
+          "decimals": 2,
+          "displayName": "",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "HEALTH"
+              },
+              {
+                "id": "unit"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "purple",
+                        "index": 0,
+                        "text": "UNKNOWN"
+                      },
+                      "1": {
+                        "color": "green",
+                        "index": 1,
+                        "text": "GREEN"
+                      },
+                      "2": {
+                        "color": "yellow",
+                        "index": 2,
+                        "text": "YELLOW"
+                      },
+                      "3": {
+                        "color": "red",
+                        "index": 3,
+                        "text": "RED"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 800
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 44,
+      "options": {
+        "footer": {
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.3.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "vmware_exporter_host_hardware_system_sensor_info{} -0 ",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "__auto",
+          "refId": "Product Info"
+        }
+      ],
+      "title": "Hardware System Sensor Information",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value #A": true,
+              "Value #B": false,
+              "Value #C": false,
+              "Value #CPU_CORES": true,
+              "Value #CPU_THREADS": true,
+              "Value #CPU_USAGE": true,
+              "Value #D": false,
+              "Value #HW_INFO": true,
+              "Value #J": false,
+              "Value #L": false,
+              "Value #MEM_MAX": true,
+              "Value #MEM_USAGE": true,
+              "Value #NET_RX": true,
+              "Value #NET_TX": true,
+              "Value #UPTIME": true,
+              "__name__": true,
+              "host_name": true,
+              "id": true,
+              "instance": true,
+              "job": true,
+              "sensor_number": true,
+              "uuid": true
+            },
+            "indexByName": {
+              "Time": 3,
+              "Value #CPU_CORES": 11,
+              "Value #CPU_THREADS": 12,
+              "Value #CPU_USAGE": 13,
+              "Value #HW_INFO": 7,
+              "Value #MEM_MAX": 9,
+              "Value #MEM_USAGE": 10,
+              "Value #NET_RX": 14,
+              "Value #NET_TX": 15,
+              "Value #UPTIME": 8,
+              "__name__": 22,
+              "api_version": 16,
+              "build": 17,
+              "full_name": 18,
+              "host_name": 4,
+              "instance": 5,
+              "job": 6,
+              "license_product_name": 1,
+              "license_version": 21,
+              "name": 0,
+              "os_type": 19,
+              "vendor": 2,
+              "version": 20
+            },
+            "renameByName": {
+              "Time": "",
+              "Value": "HEALTH",
+              "Value #B": "Memory",
+              "Value #C": "CPU Cores",
+              "Value #D": "Uptime",
+              "Value #J": "Net Download*",
+              "Value #K": "Net Upload*",
+              "Value #L": "CPU Threads",
+              "api_version": "API Version",
+              "base_units": "UNITS",
+              "build": "Build",
+              "cpu_model": "CPU Model",
+              "current_reading": "VALUE",
+              "full_name": "Full Name",
+              "host_name": "Host Name",
+              "id": "ID",
+              "instance": "",
+              "license_product_name": "Product Name",
+              "license_version": "License Version",
+              "model": "Model",
+              "name": "NAME",
+              "os_type": "OS Type",
+              "sensor_number": "NUMBER",
+              "sensor_type": "TYPE",
+              "uuid": "Server UUID",
+              "vendor": "Vendor",
+              "version": "Version"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 37
+      },
+      "id": 46,
+      "panels": [],
+      "title": "VM Metrics",
+      "type": "row"
+    },
+    {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "fill": 0,
       "fillGradient": 0,
       "gridPos": {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 12
+        "y": 38
       },
       "hiddenSeries": false,
       "id": 8,
@@ -1474,7 +2078,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1489,9 +2093,11 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(vmware_exporter_vm_cpu_usagemhz{host_name=~\"$esxhost\"}[5m])",
+          "exemplar": true,
+          "expr": "vmware_exporter_vm_cpu_usagemhz{host_name=~\"$esxhost\"}",
           "format": "time_series",
           "hide": false,
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "{{ vm_name }}",
           "range": true,
@@ -1545,7 +2151,7 @@
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 12
+        "y": 38
       },
       "hiddenSeries": false,
       "id": 17,
@@ -1568,7 +2174,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1582,8 +2188,10 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
+          "exemplar": true,
           "expr": "vmware_exporter_vm_mem_usage{host_name=~\"$esxhost\"}",
           "format": "time_series",
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "{{ vm_name }}",
           "range": true,
@@ -1627,9 +2235,11 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+      "fieldConfig": {
+        "defaults": {
+          "unit": "KBs"
+        },
+        "overrides": []
       },
       "fill": 0,
       "fillGradient": 0,
@@ -1637,7 +2247,7 @@
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 23
+        "y": 49
       },
       "hiddenSeries": false,
       "id": 36,
@@ -1662,7 +2272,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1677,9 +2287,11 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(vmware_exporter_vm_disk_read_average{host_name=~\"$esxhost\"}[5m])",
+          "exemplar": true,
+          "expr": "vmware_exporter_vm_disk_read_average{host_name=~\"$esxhost\"}",
           "format": "time_series",
           "hide": false,
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "{{ vm_name }}",
           "range": true,
@@ -1723,9 +2335,11 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+      "fieldConfig": {
+        "defaults": {
+          "unit": "KiBs"
+        },
+        "overrides": []
       },
       "fill": 0,
       "fillGradient": 0,
@@ -1733,7 +2347,7 @@
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 23
+        "y": 49
       },
       "hiddenSeries": false,
       "id": 37,
@@ -1758,7 +2372,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1773,9 +2387,11 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(vmware_exporter_vm_disk_write_average{host_name=~\"$esxhost\"}[5m])",
+          "exemplar": true,
+          "expr": "vmware_exporter_vm_disk_write_average{host_name=~\"$esxhost\"}",
           "format": "time_series",
           "hide": false,
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "{{ vm_name }}",
           "range": true,
@@ -1799,7 +2415,7 @@
       "yaxes": [
         {
           "$$hashKey": "object:752",
-          "format": "KBs",
+          "format": "KiBs",
           "logBase": 1,
           "show": true
         },
@@ -1819,9 +2435,11 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+      "fieldConfig": {
+        "defaults": {
+          "unit": "KBs"
+        },
+        "overrides": []
       },
       "fill": 0,
       "fillGradient": 0,
@@ -1829,7 +2447,7 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 34
+        "y": 60
       },
       "hiddenSeries": false,
       "id": 35,
@@ -1854,7 +2472,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1869,9 +2487,11 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(vmware_exporter_vm_disk_read_average{host_name=~\"$esxhost\"}[5m]) + rate(vmware_exporter_vm_disk_write_average{host_name=~\"$esxhost\"}[5m])",
+          "exemplar": true,
+          "expr": "vmware_exporter_vm_disk_read_average{host_name=~\"$esxhost\"} + vmware_exporter_vm_disk_write_average{host_name=~\"$esxhost\"}",
           "format": "time_series",
           "hide": false,
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "{{ vm_name }}",
           "range": true,
@@ -1915,9 +2535,11 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+      "fieldConfig": {
+        "defaults": {
+          "unit": "KBs"
+        },
+        "overrides": []
       },
       "fill": 0,
       "fillGradient": 0,
@@ -1925,7 +2547,7 @@
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 46
+        "y": 72
       },
       "hiddenSeries": false,
       "id": 38,
@@ -1950,7 +2572,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1965,9 +2587,11 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(vmware_exporter_vm_net_received_average{host_name=~\"$esxhost\"}[5m])",
+          "exemplar": true,
+          "expr": "vmware_exporter_vm_net_received_average{host_name=~\"$esxhost\"}",
           "format": "time_series",
           "hide": false,
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "{{ vm_name }}",
           "range": true,
@@ -2011,9 +2635,11 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+      "fieldConfig": {
+        "defaults": {
+          "unit": "KBs"
+        },
+        "overrides": []
       },
       "fill": 0,
       "fillGradient": 0,
@@ -2021,7 +2647,7 @@
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 46
+        "y": 72
       },
       "hiddenSeries": false,
       "id": 39,
@@ -2046,7 +2672,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.1.6",
+      "pluginVersion": "8.3.4",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -2061,9 +2687,11 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(vmware_exporter_vm_net_transmitted_average{host_name=~\"$esxhost\"}[5m])",
+          "exemplar": true,
+          "expr": "vmware_exporter_vm_net_transmitted_average{host_name=~\"$esxhost\"}",
           "format": "time_series",
           "hide": false,
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "{{ vm_name }}",
           "range": true,
@@ -2101,9 +2729,109 @@
       "yaxis": {
         "align": false
       }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "fieldConfig": {
+        "defaults": {
+          "unit": "KBs"
+        },
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 83
+      },
+      "hiddenSeries": false,
+      "id": 40,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": true,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "sort": "max",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.3.4",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "vmware_exporter_vm_net_received_average{host_name=~\"$esxhost\"} + vmware_exporter_vm_net_transmitted_average{host_name=~\"$esxhost\"}",
+          "format": "time_series",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "{{ vm_name }}",
+          "range": true,
+          "refId": "D"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "VM Network TX/RX Rate Sum",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:752",
+          "format": "KBs",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:753",
+          "format": "short",
+          "logBase": 1,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
     }
   ],
-  "schemaVersion": 37,
+  "schemaVersion": 34,
   "style": "dark",
   "tags": [
     "prometheus",
@@ -2192,6 +2920,6 @@
   "timezone": "browser",
   "title": "VMware ESX Hosts Information",
   "uid": "_gg9LEqmk",
-  "version": 16,
+  "version": 6,
   "weekStart": ""
 }
