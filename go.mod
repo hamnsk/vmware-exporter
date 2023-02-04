@@ -1,6 +1,6 @@
 module vmware-exporter
 
-go 1.18
+go 1.19
 
 require (
 	github.com/go-co-op/gocron v1.18.0

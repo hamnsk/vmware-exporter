@@ -212,8 +212,38 @@ type Status struct {
 	DiskOk              []diskOk
 	NetworkPNICSpeed    []pnic
 	HW                  hwInfo
+	Product             ProductInfo
+	SensorInfo          []NumericSensorInfo
+	StorageInfo         []StorageStateInfo
 	DS                  []totalds
 	VMS                 []hvms
+}
+
+type ProductInfo struct {
+	Name               string
+	FullName           string
+	Vendor             string
+	Version            string
+	Build              string
+	OsType             string
+	ApiVersion         string
+	LicenseProductName string
+	LicenseVersion     string
+}
+
+type NumericSensorInfo struct {
+	Name           string
+	HealthState    float64
+	CurrentReading string
+	BaseUnits      string
+	SensorType     string
+	Id             string
+	SensorNumber   string
+}
+
+type StorageStateInfo struct {
+	Name   string
+	Status float64
 }
 
 func RegisterExporter() {

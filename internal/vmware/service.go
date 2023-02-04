@@ -5,6 +5,7 @@ import (
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/view"
 	"github.com/vmware/govmomi/vim25/mo"
+	"math"
 	"reflect"
 	"strconv"
 	"strings"
@@ -76,6 +77,9 @@ func (s *service) status() (*Status, error) {
 		DiskOk:              []diskOk{},
 		NetworkPNICSpeed:    []pnic{},
 		HW:                  hwInfo{},
+		Product:             ProductInfo{},
+		SensorInfo:          []NumericSensorInfo{},
+		StorageInfo:         []StorageStateInfo{},
 		DS:                  []totalds{},
 		VMS:                 []hvms{},
 	}
@@ -362,14 +366,33 @@ func (s *service) status() (*Status, error) {
 			VmGuestStorageCommitted:   float64(vm.Summary.Storage.Committed),
 			VmGuestStorageUnCommitted: float64(vm.Summary.Storage.Uncommitted),
 			VmBoot:                    convertTime(vm),
-			VmCpuAval:                 float64(vm.Summary.Runtime.MaxCpuUsage) * 1000 * 1000,
-			VmCpuUsage:                float64(vm.Summary.QuickStats.OverallCpuUsage) * 1000 * 1000,
+			VmCpuAval:                 float64(vm.Summary.Runtime.MaxCpuUsage),
+			VmCpuUsage:                float64(vm.Summary.QuickStats.OverallCpuUsage),
 			VmNumCpu:                  float64(vm.Summary.Config.NumCpu),
 			VmMemAval:                 float64(vm.Summary.Config.MemorySizeMB),
-			VmMemUsage:                float64(vm.Summary.QuickStats.HostMemoryUsage) * 1024 * 1024,
+			VmMemUsage:                float64(vm.Summary.QuickStats.HostMemoryUsage),
 			Perf:                      vmPerfRes,
 		})
 
+	}
+
+	for _, sensor := range hss[0].Summary.Runtime.HealthSystemRuntime.SystemHealthInfo.NumericSensorInfo {
+		status.SensorInfo = append(status.SensorInfo, NumericSensorInfo{
+			Name:           sensor.Name,
+			HealthState:    sensorHealth(strings.ToLower(sensor.HealthState.GetElementDescription().Key)),
+			CurrentReading: strconv.Itoa(int(float64(sensor.CurrentReading) * math.Pow(10, float64(sensor.UnitModifier)))),
+			BaseUnits:      sensor.BaseUnits,
+			SensorType:     sensor.SensorType,
+			Id:             sensor.Id,
+			SensorNumber:   strconv.Itoa(int(sensor.SensorNumber)),
+		})
+	}
+
+	for _, storageSensor := range hss[0].Summary.Runtime.HealthSystemRuntime.HardwareStatusInfo.StorageStatusInfo {
+		status.StorageInfo = append(status.StorageInfo, StorageStateInfo{
+			Name:   storageSensor.Name,
+			Status: sensorHealth(strings.ToLower(storageSensor.Status.GetElementDescription().Key)),
+		})
 	}
 
 	status.HostName = hss[0].Summary.Config.Name
@@ -390,6 +413,15 @@ func (s *service) status() (*Status, error) {
 	status.HW.NumCpuThreads = float64(hss[0].Summary.Hardware.NumCpuThreads)
 	status.HW.NumNics = float64(hss[0].Summary.Hardware.NumNics)
 	status.HW.NumHBAs = float64(hss[0].Summary.Hardware.NumHBAs)
+	status.Product.Name = hss[0].Summary.Config.Product.Name
+	status.Product.FullName = hss[0].Summary.Config.Product.FullName
+	status.Product.Vendor = hss[0].Summary.Config.Product.Vendor
+	status.Product.Version = hss[0].Summary.Config.Product.Version
+	status.Product.Build = hss[0].Summary.Config.Product.Build
+	status.Product.OsType = hss[0].Summary.Config.Product.OsType
+	status.Product.ApiVersion = hss[0].Summary.Config.Product.ApiVersion
+	status.Product.LicenseProductName = hss[0].Summary.Config.Product.LicenseProductName
+	status.Product.LicenseVersion = hss[0].Summary.Config.Product.LicenseProductVersion
 
 	return &status, nil
 }

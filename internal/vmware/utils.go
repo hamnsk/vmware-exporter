@@ -41,6 +41,19 @@ func powerState(s types.HostSystemPowerState) float64 {
 	return 0
 }
 
+func sensorHealth(s string) float64 {
+	if s == "green" {
+		return 1
+	}
+	if s == "yellow" {
+		return 2
+	}
+	if s == "red" {
+		return 3
+	}
+	return 0
+}
+
 func powerStateVM(s types.VirtualMachinePowerState) float64 {
 	if s == "poweredOn" {
 		return 1
