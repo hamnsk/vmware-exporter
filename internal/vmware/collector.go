@@ -17,6 +17,9 @@ type Collector struct {
 	DiskOk                    *prometheus.Desc
 	NetworkPNICSpeed          *prometheus.Desc
 	HostHardwareInfo          *prometheus.Desc
+	HostProductInfo           *prometheus.Desc
+	HostSystemSensorInfo      *prometheus.Desc
+	HostStorageSensorInfo     *prometheus.Desc
 	NumCpuPkgs                *prometheus.Desc
 	CpuMhz                    *prometheus.Desc
 	NumCpuCores               *prometheus.Desc
@@ -185,7 +188,7 @@ type Collector struct {
 
 var _ prometheus.Collector = &Collector{}
 
-//New Create A new VMWare collector
+// New Create A new VMWare collector
 func NewCollector(ss Service) *Collector {
 	return &Collector{
 		ss: ss,
@@ -248,6 +251,24 @@ func NewCollector(ss Service) *Collector {
 			prometheus.BuildFQName(namespace, "host", "hardware_info"),
 			"Vmware Host Hardware info",
 			[]string{"host_name", "vendor", "model", "uuid", "cpu_model"},
+			nil,
+		),
+		HostProductInfo: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "host", "product_info"),
+			"Vmware Host Product info",
+			[]string{"host_name", "name", "full_name", "vendor", "version", "build", "os_type", "api_version", "license_product_name", "license_version"},
+			nil,
+		),
+		HostSystemSensorInfo: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "host", "hardware_system_sensor_info"),
+			"Vmware Host Hardware System Sensor info: 0 unknown, 1 green, 2 yellow, 3 red",
+			[]string{"host_name", "name", "current_reading", "base_units", "sensor_type", "id", "sensor_number"},
+			nil,
+		),
+		HostStorageSensorInfo: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "host", "hardware_storage_sensor_info"),
+			"Vmware Host Hardware Storage Sensor info: 0 unknown, 1 green, 2 yellow, 3 red",
+			[]string{"host_name", "name"},
 			nil,
 		),
 		NumCpuPkgs: prometheus.NewDesc(
@@ -341,7 +362,7 @@ func NewCollector(ss Service) *Collector {
 			nil,
 		),
 		VmCpuAval: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "vm", "cpu_avaleblemhz"),
+			prometheus.BuildFQName(namespace, "vm", "cpu_availablemhz"),
 			"VMWare VM usage CPU",
 			[]string{"vm_name", "host_name"},
 			nil,
@@ -359,7 +380,7 @@ func NewCollector(ss Service) *Collector {
 			nil,
 		),
 		VmMemAval: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "vm", "mem_avaleble"),
+			prometheus.BuildFQName(namespace, "vm", "mem_available"),
 			"Available memory",
 			[]string{"vm_name", "host_name"},
 			nil,
@@ -1244,6 +1265,7 @@ func (c Collector) Describe(descs chan<- *prometheus.Desc) {
 		c.DiskOk,
 		c.NetworkPNICSpeed,
 		c.HostHardwareInfo,
+		c.HostProductInfo,
 		c.NumCpuPkgs,
 		c.CpuMhz,
 		c.NumCpuCores,
@@ -1493,6 +1515,14 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 		s.HostName, s.HW.Vendor, s.HW.Model, s.HW.Uuid, s.HW.CpuModel,
 	)
 	ch <- prometheus.MustNewConstMetric(
+		c.HostProductInfo,
+		prometheus.GaugeValue,
+		1,
+		s.HostName, s.Product.Name, s.Product.FullName, s.Product.Vendor,
+		s.Product.Version, s.Product.Build, s.Product.OsType, s.Product.ApiVersion,
+		s.Product.LicenseProductName, s.Product.LicenseVersion,
+	)
+	ch <- prometheus.MustNewConstMetric(
 		c.NumCpuPkgs,
 		prometheus.GaugeValue,
 		s.HW.NumCpuPkgs,
@@ -1626,13 +1656,13 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(
 			c.CpuDemandAverage,
 			prometheus.GaugeValue,
-			vm.Perf.CPU_DEMANDENTITLEMENTRATIO_LATEST,
+			vm.Perf.CPU_DEMAND_AVERAGE,
 			vm.VmName, s.HostName,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.CpuDemandentitlementratioLatest,
 			prometheus.GaugeValue,
-			vm.Perf.CPU_DEMAND_AVERAGE,
+			vm.Perf.CPU_DEMANDENTITLEMENTRATIO_LATEST,
 			vm.VmName, s.HostName,
 		)
 		ch <- prometheus.MustNewConstMetric(
@@ -2476,6 +2506,23 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 			vm.VmName, s.HostName,
 		)
 
+	}
+
+	for _, sensor := range s.SensorInfo {
+		ch <- prometheus.MustNewConstMetric(
+			c.HostSystemSensorInfo,
+			prometheus.GaugeValue,
+			sensor.HealthState,
+			s.HostName, sensor.Name, sensor.CurrentReading, sensor.BaseUnits, sensor.SensorType, sensor.Id, sensor.SensorNumber,
+		)
+	}
+	for _, sensor := range s.StorageInfo {
+		ch <- prometheus.MustNewConstMetric(
+			c.HostStorageSensorInfo,
+			prometheus.GaugeValue,
+			sensor.Status,
+			s.HostName, sensor.Name,
+		)
 	}
 
 }
