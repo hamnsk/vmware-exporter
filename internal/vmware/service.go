@@ -141,7 +141,12 @@ func (s *service) status() (*Status, error) {
 		s.logger.Error(err.Error())
 	}
 	for _, ni := range hostsn.NetworkInfo.Pnic {
-		status.NetworkPNICSpeed = append(status.NetworkPNICSpeed, pnic{ni.Device, ni.Mac, float64(ni.LinkSpeed.SpeedMb)})
+		var lSpeed float64
+		if ni.LinkSpeed != nil {
+			lSpeed = float64(ni.LinkSpeed.SpeedMb)
+		}
+
+		status.NetworkPNICSpeed = append(status.NetworkPNICSpeed, pnic{ni.Device, ni.Mac, lSpeed})
 	}
 
 	// Datastore Metrics
@@ -167,7 +172,7 @@ func (s *service) status() (*Status, error) {
 	}
 	defer v.Destroy(ctx)
 	var vms []mo.VirtualMachine
-	err = v.Retrieve(ctx, []string{"VirtualMachine"}, []string{"summary"}, &vms)
+	err = v.Retrieve(ctx, []string{"VirtualMachine"}, nil, &vms)
 	if err != nil {
 		s.logger.Error(err.Error())
 	}
@@ -389,10 +394,12 @@ func (s *service) status() (*Status, error) {
 	}
 
 	for _, storageSensor := range hss[0].Summary.Runtime.HealthSystemRuntime.HardwareStatusInfo.StorageStatusInfo {
-		status.StorageInfo = append(status.StorageInfo, StorageStateInfo{
-			Name:   storageSensor.Name,
-			Status: sensorHealth(strings.ToLower(storageSensor.Status.GetElementDescription().Key)),
-		})
+		if !checkSensorIfAppend(storageSensor.Name, status.StorageInfo) {
+			status.StorageInfo = append(status.StorageInfo, StorageStateInfo{
+				Name:   storageSensor.Name,
+				Status: sensorHealth(strings.ToLower(storageSensor.Status.GetElementDescription().Key)),
+			})
+		}
 	}
 
 	status.HostName = hss[0].Summary.Config.Name
@@ -424,4 +431,13 @@ func (s *service) status() (*Status, error) {
 	status.Product.LicenseVersion = hss[0].Summary.Config.Product.LicenseProductVersion
 
 	return &status, nil
+}
+
+func checkSensorIfAppend(name string, sensors []StorageStateInfo) bool {
+	for _, sensor := range sensors {
+		if sensor.Name == name {
+			return true
+		}
+	}
+	return false
 }
