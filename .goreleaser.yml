@@ -1,3 +1,4 @@
+version: 2
 builds:
   - main: cmd/vmware-exporter/main.go
     binary: vmware-exporter
