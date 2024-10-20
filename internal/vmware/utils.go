@@ -116,41 +116,46 @@ func perfMon(ctx context.Context, c *govmomi.Client, l *logging.Logger, vms []ty
 	}
 
 	// Query metrics
-	sample, err := perfManager.SampleByName(ctx, spec, names, vms)
-	if err != nil {
-		l.Fatal(err.Error())
-	}
-
-	result, err := perfManager.ToMetricSeries(ctx, sample)
-	if err != nil {
-		l.Fatal(err.Error())
-	}
-
-	// Read result
-	for _, metric := range result {
-		vmNum := metric.Entity.Value
-		for _, v := range metric.Value {
-			counter := counters[v.Name]
-			units := counter.UnitInfo.GetElementDescription().Label
-
-			instance := v.Instance
-			if instance == "" {
-				instance = "-"
-			}
-
-			if len(v.Value) != 0 {
-				metric := vmMetric{
-					Instance:    instance,
-					MetricName:  v.Name,
-					MetricValue: v.ValueCSV(),
-					MetricUnit:  units,
-				}
-				perfMetricsResult = append(perfMetricsResult, metric)
-			}
+	if vms != nil {
+		sample, err := perfManager.SampleByName(ctx, spec, names, vms)
+		if err != nil {
+			l.Fatal(err.Error())
 		}
 
-		metricsRes[vmNum] = perfMetricsResult
+		result, err := perfManager.ToMetricSeries(ctx, sample)
+		if err != nil {
+			l.Fatal(err.Error())
+		}
 
+		// Read result
+		for _, metric := range result {
+			vmNum := metric.Entity.Value
+			for _, v := range metric.Value {
+				counter := counters[v.Name]
+				units := counter.UnitInfo.GetElementDescription().Label
+
+				instance := v.Instance
+				if instance == "" {
+					instance = "-"
+				}
+
+				if len(v.Value) != 0 {
+					metric := vmMetric{
+						Instance:    instance,
+						MetricName:  v.Name,
+						MetricValue: v.ValueCSV(),
+						MetricUnit:  units,
+					}
+					perfMetricsResult = append(perfMetricsResult, metric)
+				}
+			}
+
+			metricsRes[vmNum] = perfMetricsResult
+
+		}
+		return metricsRes
 	}
-	return metricsRes
+
+	return nil
+
 }
