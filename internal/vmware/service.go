@@ -119,16 +119,18 @@ func (s *service) status() (*Status, error) {
 		s.logger.Error(err.Error())
 	}
 
-	for _, e := range hostss.StorageDeviceInfo.ScsiLun {
-		lun := e.GetScsiLun()
-		ok := 1.0
-		for _, s := range lun.OperationalState {
-			if s != "ok" {
-				ok = 0
-				break
+	if len(hostss.StorageDeviceInfo.ScsiLun) > 0 {
+		for _, e := range hostss.StorageDeviceInfo.ScsiLun {
+			lun := e.GetScsiLun()
+			ok := 1.0
+			for _, s := range lun.OperationalState {
+				if s != "ok" {
+					ok = 0
+					break
+				}
 			}
+			status.DiskOk = append(status.DiskOk, diskOk{lun.DeviceName, ok})
 		}
-		status.DiskOk = append(status.DiskOk, diskOk{lun.DeviceName, ok})
 	}
 
 	nn, err := hs.ConfigManager().NetworkSystem(ctx)
@@ -381,24 +383,28 @@ func (s *service) status() (*Status, error) {
 
 	}
 
-	for _, sensor := range hss[0].Summary.Runtime.HealthSystemRuntime.SystemHealthInfo.NumericSensorInfo {
-		status.SensorInfo = append(status.SensorInfo, NumericSensorInfo{
-			Name:           sensor.Name,
-			HealthState:    sensorHealth(strings.ToLower(sensor.HealthState.GetElementDescription().Key)),
-			CurrentReading: strconv.Itoa(int(float64(sensor.CurrentReading) * math.Pow(10, float64(sensor.UnitModifier)))),
-			BaseUnits:      sensor.BaseUnits,
-			SensorType:     sensor.SensorType,
-			Id:             sensor.Id,
-			SensorNumber:   strconv.Itoa(int(sensor.SensorNumber)),
-		})
+	if len(hss[0].Summary.Runtime.HealthSystemRuntime.SystemHealthInfo.NumericSensorInfo) > 0 {
+		for _, sensor := range hss[0].Summary.Runtime.HealthSystemRuntime.SystemHealthInfo.NumericSensorInfo {
+			status.SensorInfo = append(status.SensorInfo, NumericSensorInfo{
+				Name:           sensor.Name,
+				HealthState:    sensorHealth(strings.ToLower(sensor.HealthState.GetElementDescription().Key)),
+				CurrentReading: strconv.Itoa(int(float64(sensor.CurrentReading) * math.Pow(10, float64(sensor.UnitModifier)))),
+				BaseUnits:      sensor.BaseUnits,
+				SensorType:     sensor.SensorType,
+				Id:             sensor.Id,
+				SensorNumber:   strconv.Itoa(int(sensor.SensorNumber)),
+			})
+		}
 	}
 
-	for _, storageSensor := range hss[0].Summary.Runtime.HealthSystemRuntime.HardwareStatusInfo.StorageStatusInfo {
-		if !checkSensorIfAppend(storageSensor.Name, status.StorageInfo) {
-			status.StorageInfo = append(status.StorageInfo, StorageStateInfo{
-				Name:   storageSensor.Name,
-				Status: sensorHealth(strings.ToLower(storageSensor.Status.GetElementDescription().Key)),
-			})
+	if len(hss[0].Summary.Runtime.HealthSystemRuntime.HardwareStatusInfo.StorageStatusInfo) > 0 {
+		for _, storageSensor := range hss[0].Summary.Runtime.HealthSystemRuntime.HardwareStatusInfo.StorageStatusInfo {
+			if !checkSensorIfAppend(storageSensor.Name, status.StorageInfo) {
+				status.StorageInfo = append(status.StorageInfo, StorageStateInfo{
+					Name:   storageSensor.Name,
+					Status: sensorHealth(strings.ToLower(storageSensor.Status.GetElementDescription().Key)),
+				})
+			}
 		}
 	}
 
