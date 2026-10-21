@@ -3,10 +3,12 @@ package vmware
 import (
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
+	"runtime/debug"
 )
 
 type Collector struct {
 	ss                        Service
+	extra                     *extraDescs
 	HostPowerState            *prometheus.Desc
 	HostMaintenanceMode       *prometheus.Desc
 	HostBoot                  *prometheus.Desc
@@ -191,7 +193,8 @@ var _ prometheus.Collector = &Collector{}
 // New Create A new VMWare collector
 func NewCollector(ss Service) *Collector {
 	return &Collector{
-		ss: ss,
+		ss:    ss,
+		extra: newExtraDescs(),
 		HostPowerState: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "host", "power_state"),
 			"poweredOn 1, poweredOff 2, standBy 3, other 0",
@@ -1435,18 +1438,39 @@ func (c Collector) Describe(descs chan<- *prometheus.Desc) {
 	for _, d := range ds {
 		descs <- d
 	}
+	c.extra.describe(descs)
 }
 
 func (c Collector) Collect(ch chan<- prometheus.Metric) {
 	//Call Api and return metrics
 
-	s, err := c.ss.status()
+	// Collect runs in a goroutine of the prometheus registry, so a panic here is not caught by net/http
+	// and would kill the whole exporter: turn it into a failed scrape instead.
+	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Errorf("panic while collecting VMWare metrics: %v\n%s", r, debug.Stack())
+			c.ss.error(err)
+			ch <- prometheus.NewInvalidMetric(c.HostHardwareInfo, err)
+		}
+	}()
+
+	statuses, err := c.ss.statuses()
 
 	if err != nil {
 		c.ss.error(fmt.Errorf("failed collecting VMWare metrics: %v", err))
 		ch <- prometheus.NewInvalidMetric(c.HostHardwareInfo, err)
 		return
 	}
+
+	// a vCenter target reports every host of its inventory
+	for _, s := range statuses {
+		c.collectHost(ch, s)
+	}
+}
+
+func (c Collector) collectHost(ch chan<- prometheus.Metric, s *Status) {
+	s.SensorInfo = dedupSensors(s.SensorInfo)
+	c.extra.collect(ch, s)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.HostPowerState,

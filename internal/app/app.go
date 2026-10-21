@@ -2,11 +2,13 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 	"os"
 	"os/signal"
 	"reflect"
+	"strconv"
 	"syscall"
 	"time"
 	"vmware-exporter/internal/config"
@@ -22,6 +24,22 @@ type app struct {
 	appRouter   *mux.Router
 	appSrv      *http.Server
 	vaultClient vault.Client
+}
+
+const vaultKeepAlivePause = 5 * time.Second
+
+// parseSeconds parses a Go duration ("30s") or a plain number of seconds ("30").
+func parseSeconds(v string, def time.Duration) (time.Duration, error) {
+	if v == "" {
+		return def, nil
+	}
+	if d, err := time.ParseDuration(v); err == nil && d > 0 {
+		return d, nil
+	}
+	if n, err := strconv.Atoi(v); err == nil && n > 0 {
+		return time.Duration(n) * time.Second, nil
+	}
+	return def, fmt.Errorf("invalid duration %q", v)
 }
 
 func useVault(config interface{}) bool {
@@ -110,25 +128,23 @@ func (a *app) startAppHTTPServer() {
 
 	a.logger.Info("Starting server...", a.logger.String("bind_addr", bindAddr))
 
-	wtimeout, err := time.ParseDuration(cfg.FieldByName("HTTPWriteTimeout").Interface().(string))
+	wtimeout, err := parseSeconds(cfg.FieldByName("HTTPWriteTimeout").Interface().(string), 30*time.Second)
 	if err != nil {
 		a.logger.Error(err.Error())
 		a.logger.Info("set default write timeout")
-		wtimeout = 30
 	}
 
-	rtimeout, err := time.ParseDuration(cfg.FieldByName("HTTPReadTimeout").Interface().(string))
+	rtimeout, err := parseSeconds(cfg.FieldByName("HTTPReadTimeout").Interface().(string), 30*time.Second)
 	if err != nil {
 		a.logger.Error(err.Error())
 		a.logger.Info("set default read timeout")
-		rtimeout = 30
 	}
 
 	srv := &http.Server{
 		Handler:      a.appRouter,
 		Addr:         bindAddr,
-		WriteTimeout: wtimeout * time.Second,
-		ReadTimeout:  rtimeout * time.Second,
+		WriteTimeout: wtimeout,
+		ReadTimeout:  rtimeout,
 	}
 
 	go func(s *http.Server) {

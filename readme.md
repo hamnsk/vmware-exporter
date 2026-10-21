@@ -16,6 +16,53 @@ Collect metrics from ESXi Host and VM's performance metrics
 * Can work without a Hashicorp Vault if the login and password for all hypervisors are the same,
 and you are not embarrassed by passing them through environment variables
 * Works in multi-target mode
+* The target can be a standalone ESXi host **or a vCenter**: a vCenter target reports every host
+  of its inventory with the same `host_name` label, so no per-host scrape is needed
+
+## Targets: ESXi or vCenter
+
+Pass either an ESXi host or a vCenter as the `target` of `/probe`. Hosts, datastores and VMs are read from the
+root of the inventory, so with a vCenter every host is reported, each one with its own datastores
+(a datastore is exported for every host it is mounted on) and VMs (by the host they run on).
+The credentials must have at least the read-only role on the inventory root (for vCenter use a
+`user@vsphere.local` account with a read-only global permission, propagated to children).
+
+A host that is not connected only skips its storage and network details, the rest is still reported.
+
+## Metrics
+
+All metrics are prefixed with `vmware_exporter_`, almost all carry `host_name`, VM metrics carry `vm_name`,
+datastore metrics `ds_name`.
+
+| Group | Examples |
+|---|---|
+| Host | `host_power_state`, `host_connected`, `host_maintenance_mode`, `host_standby_mode`, `host_cluster_info`, `host_cpu_usage`, `host_memory_usage`, `host_product_info`, `host_hardware_info`, `host_sensor_value`, `host_red_alarms`, `host_yellow_alarms` |
+| Host performance | `host_cpu_*`, `host_mem_*`, `host_power_power_average`, `host_net_*{nic}`, `host_datastore_*{ds_name}`, `host_disk_*{device}` (real-time vSphere counters) |
+| Datastore | `datastore_capacity_size`, `datastore_freespace_size`, `datastore_provisioned_size`, `datastore_uncommitted_size`, `datastore_accessible`, `datastore_maintenance_mode`, `datastore_vms`, `datastore_hosts`, `datastore_info`, `datastore_*_alarms` |
+| VM | `vm_power_state`, `vm_template`, `vm_guest_info`, `vm_guest_tools_status`, `vm_guest_tools_running_status`, `vm_guest_disk_capacity_size`, `vm_guest_disk_free_size`, `vm_snapshot_count`, `vm_snapshot_created_timestamp_seconds`, `vm_datastore_{committed,uncommitted,unshared}_size`, `vm_*_alarms` |
+| VM performance | `vm_cpu_*`, `vm_mem_*`, `vm_net_*`, `vm_disk_*`, `vm_datastore_{read,write,numberreadaveraged,numberwriteaveraged,totalreadlatency,totalwritelatency}_average{ds_name}` |
+| vCenter | `vcenter_info` (only for a vCenter target) |
+
+Performance counters are the last real-time (20 s) sample in vSphere units: for example `*_usage_average` is in
+1/100 of a percent, `net_*`/`datastore_*_average` in KB/s, latencies in ms, `mem_*` in KB.
+Alarm metrics are the number of triggered red and yellow alarms of an entity.
+
+## Dashboards and alerts
+
+Import the files from [`Dashboards`](./Dashboards) into Grafana (Prometheus datasource):
+
+| Dashboard | Description |
+|---|---|
+| VMware vCenter Overview | Inventory, capacity and over-commitment, alarms, snapshots, full guest disks, top consumers |
+| VMware Cluster Owerview | CPU/memory/network/disk per cluster; clusters come from `host_cluster_info`, **no relabeling to `cluster_name` is needed** any more |
+| VMware ESX Hosts Information | One host: state, alarms, CPU/memory/network/datastore performance, sensors |
+| VMware VM Information | One VM: health, snapshots, guest file systems, CPU/memory/network, datastore I/O |
+| VMware Datastores | Capacity, provisioning, accessibility, latency/throughput/IOPS per datastore, top VMs |
+
+The multi-target dashboards have a `target` variable built from the Prometheus `instance` label
+(see the relabeling in the Prometheus configuration below).
+Alerting rules are in [`Alerts/vmware.rules.yml`](./Alerts/vmware.rules.yml) (`promtool check rules` clean).
+The screenshots below show the previous version of the dashboards.
 
 ## Screenshots
 ### Cluster Overview
@@ -34,7 +81,6 @@ and you are not embarrassed by passing them through environment variables
 
 ## Road Map
 
-* Create Grafana Dashboards
 * Refactor and Optimize Code
 
 ## Build
@@ -203,6 +249,7 @@ VMWare exporter is configured via a environment variables.
 | VMWARE_EXPORTER_BIND_ADDR               | :9513      | Exporter bind address in format XXX.XXX.XXX.XXX:PORT        |
 | VMWARE_EXPORTER_VMWARE_USER             | monitoring | ESXi user name when not using a Vault                       |         
 | VMWARE_EXPORTER_VMWARE_PASSWORD         | password   | ESXi user password when not using a Vault                   | 
+| VMWARE_EXPORTER_SCRAPE_TIMEOUT          | 60s        | Timeout of one scrape of a target, e.g. 20s or 1m (a plain number is seconds). Keep it below the HTTP write timeout |
 | VMWARE_EXPORTER_LOG_LEVEL               | info       | Log level e.g. in info,warn,error,debug                     |
 | VMWARE_EXPORTER_HTTP_WRITE_TIMEOUT      | 30s        | Time duration e.g. 30s or 1m                                | 
 | VMWARE_EXPORTER_HTTP_READ_TIMEOUT       | 30s        | Time duration e.g. 30s or 1m                                |  

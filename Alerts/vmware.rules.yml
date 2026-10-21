@@ -1,0 +1,187 @@
+# Prometheus alerting rules for vmware-exporter.
+# Check with: promtool check rules Alerts/vmware.rules.yml
+# `job` of the exporter scrape is expected to match "vmware.*"; adjust the up{} rule if it differs.
+groups:
+  - name: vmware-exporter
+    rules:
+      - alert: VMwareExporterTargetDown
+        expr: up{job=~"vmware.*"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "vmware-exporter cannot scrape {{ $labels.instance }}"
+          description: "The probe of {{ $labels.instance }} has been failing for 5 minutes (target unreachable, wrong credentials or timeout)."
+
+      - alert: VMwareHostDisconnected
+        expr: vmware_exporter_host_connected == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "ESXi host {{ $labels.host_name }} is not connected"
+          description: "Host {{ $labels.host_name }} ({{ $labels.instance }}) is not connected to vCenter."
+
+      - alert: VMwareHostPoweredOff
+        expr: vmware_exporter_host_power_state != 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "ESXi host {{ $labels.host_name }} is not powered on"
+          description: "power_state is {{ $value }} (1 on, 2 off, 3 standby, 0 unknown)."
+
+      - alert: VMwareHostRedAlarms
+        expr: vmware_exporter_host_red_alarms > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $value }} red alarm(s) on host {{ $labels.host_name }}"
+
+      - alert: VMwareHostSensorRed
+        expr: vmware_exporter_host_hardware_system_sensor_info == 3
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Hardware sensor {{ $labels.name }} of {{ $labels.host_name }} is red"
+
+      - alert: VMwareHostCpuHigh
+        expr: 100 * vmware_exporter_host_cpu_usage / vmware_exporter_host_cpu_max > 90
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU usage of {{ $labels.host_name }} is {{ $value | printf \"%.0f\" }}%"
+
+      - alert: VMwareHostMemoryHigh
+        expr: 100 * vmware_exporter_host_memory_usage / vmware_exporter_host_memory_max > 90
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Memory usage of {{ $labels.host_name }} is {{ $value | printf \"%.0f\" }}%"
+
+      - alert: VMwareHostNicErrors
+        expr: sum by (instance, host_name, nic) (vmware_exporter_host_net_errorsrx_summation + vmware_exporter_host_net_errorstx_summation) > 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "NIC {{ $labels.nic }} of {{ $labels.host_name }} reports errors"
+
+      - alert: VMwareDatastoreUsageWarning
+        expr: |
+          100 * (1 - max by (instance, ds_name) (vmware_exporter_datastore_freespace_size)
+                     / max by (instance, ds_name) (vmware_exporter_datastore_capacity_size)) > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Datastore {{ $labels.ds_name }} is {{ $value | printf \"%.0f\" }}% full"
+
+      - alert: VMwareDatastoreUsageCritical
+        expr: |
+          100 * (1 - max by (instance, ds_name) (vmware_exporter_datastore_freespace_size)
+                     / max by (instance, ds_name) (vmware_exporter_datastore_capacity_size)) > 95
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Datastore {{ $labels.ds_name }} is {{ $value | printf \"%.0f\" }}% full"
+
+      - alert: VMwareDatastoreOverprovisioned
+        expr: |
+          max by (instance, ds_name) (vmware_exporter_datastore_provisioned_size)
+            / max by (instance, ds_name) (vmware_exporter_datastore_capacity_size) > 2
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Datastore {{ $labels.ds_name }} is provisioned {{ $value | printf \"%.1f\" }} times over its capacity"
+
+      - alert: VMwareDatastoreInaccessible
+        expr: max by (instance, ds_name) (vmware_exporter_datastore_accessible) == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Datastore {{ $labels.ds_name }} is not accessible"
+
+      - alert: VMwareDatastoreRedAlarms
+        expr: max by (instance, ds_name) (vmware_exporter_datastore_red_alarms) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Red alarm(s) on datastore {{ $labels.ds_name }}"
+
+      - alert: VMwareDatastoreLatencyHigh
+        expr: avg by (instance, ds_name) (vmware_exporter_host_datastore_totalreadlatency_average + vmware_exporter_host_datastore_totalwritelatency_average) > 50
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Datastore {{ $labels.ds_name }} latency is {{ $value | printf \"%.0f\" }} ms (read + write)"
+
+      - alert: VMwareVMRedAlarms
+        expr: vmware_exporter_vm_red_alarms > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $value }} red alarm(s) on VM {{ $labels.vm_name }}"
+
+      - alert: VMwareVMToolsNotRunning
+        expr: |
+          vmware_exporter_vm_guest_tools_running_status == 0
+            and on (instance, vm_name, host_name) vmware_exporter_vm_power_state == 1
+            and on (instance, vm_name, host_name) vmware_exporter_vm_template == 0
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "VMware Tools are not running on {{ $labels.vm_name }}"
+
+      - alert: VMwareVMCpuReady
+        expr: vmware_exporter_vm_cpu_ready_summation / 200 > 5
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU ready of {{ $labels.vm_name }} is {{ $value | printf \"%.1f\" }}%"
+          description: "Ready time per 20 s sample, as percent. Over 5% means the VM waits for a physical CPU."
+
+      - alert: VMwareVMMemorySwapping
+        expr: vmware_exporter_vm_mem_swapped_average > 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "VM {{ $labels.vm_name }} has swapped memory"
+
+      - alert: VMwareVMSnapshotCount
+        expr: vmware_exporter_vm_snapshot_count >= 3
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "VM {{ $labels.vm_name }} has {{ $value }} snapshots"
+
+      - alert: VMwareVMSnapshotOld
+        expr: (time() - vmware_exporter_vm_snapshot_created_timestamp_seconds) / 86400 >= 7
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Snapshot {{ $labels.snapshot_name }} of {{ $labels.vm_name }} is {{ $value | printf \"%.0f\" }} days old"
+
+      - alert: VMwareVMGuestDiskUsageHigh
+        expr: |
+          100 * (1 - vmware_exporter_vm_guest_disk_free_size / vmware_exporter_vm_guest_disk_capacity_size) > 90
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.partition }} on {{ $labels.vm_name }} is {{ $value | printf \"%.0f\" }}% full"

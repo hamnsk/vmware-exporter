@@ -8,6 +8,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"reflect"
+	"sync"
 	"vmware-exporter/internal/config"
 	"vmware-exporter/internal/vault"
 	"vmware-exporter/pkg/logging"
@@ -34,6 +35,7 @@ var _ Handler = &exporterHandler{}
 
 type exporterHandler struct {
 	logger      *logging.Logger
+	mu          sync.RWMutex // protects cfg, which can be replaced by reload
 	cfg         interface{}
 	vaultClient vault.Client
 }
@@ -72,55 +74,81 @@ func (h *exporterHandler) probe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(target) > 1 {
-		appCfg := reflect.ValueOf(h.cfg).Elem()
-		if appCfg.FieldByName("UseVault").Interface().(bool) {
-			secretStoreName := appCfg.FieldByName("VaultSecretStoreName").Interface().(string)
-			if len(secretStoreName) == 0 {
-				h.logger.Error("name of kv2 secret store must be specified")
-				http.Error(w, "name of kv2 secret store must be specified", http.StatusBadRequest)
-				return
-			}
+	// every probe works on its own copy of the config: credentials from Vault are per target
+	// and must never leak into the shared config used by concurrent probes
+	cfg := h.configCopy()
+	appCfg := reflect.ValueOf(cfg).Elem()
 
-			secretStorePath := appCfg.FieldByName("VaultSecretStorePath").Interface().(string)
-			if len(secretStorePath) == 0 {
-				h.logger.Error("path for secret must be specified")
-				http.Error(w, "path for secret must be specified", http.StatusBadRequest)
-				return
-			}
-
-			data, err := h.vaultClient.GetClient().KVv2(secretStoreName).Get(
-				r.Context(),
-				fmt.Sprintf("%s/%s", secretStorePath, target),
-			)
-			if err != nil {
-				h.logger.Error(
-					fmt.Sprintf("error occurred when get credentials from Vault for target: %s", target),
-				)
-				h.logger.Error(err.Error())
-				http.Error(
-					w,
-					fmt.Sprintf("error occurred when get credentials from Vault for target: %s", target),
-					http.StatusBadRequest,
-				)
-				return
-			}
-
-			appCfg.FieldByName("VmwareUser").SetString(data.Data["username"].(string))
-			appCfg.FieldByName("VmwarePass").SetString(data.Data["password"].(string))
+	if appCfg.FieldByName("UseVault").Interface().(bool) {
+		if h.vaultClient == nil {
+			h.logger.Error("vault client is not initialized")
+			http.Error(w, "vault client is not initialized", http.StatusInternalServerError)
+			return
 		}
 
-		svc := NewService(h.logger, target, h.cfg)
-		reg := prometheus.NewRegistry()
-		prometheus.DefaultRegisterer = reg
-		prometheus.DefaultGatherer = reg
-		reg.MustRegister(NewCollector(svc))
+		secretStoreName := appCfg.FieldByName("VaultSecretStoreName").Interface().(string)
+		if len(secretStoreName) == 0 {
+			h.logger.Error("name of kv2 secret store must be specified")
+			http.Error(w, "name of kv2 secret store must be specified", http.StatusBadRequest)
+			return
+		}
+
+		secretStorePath := appCfg.FieldByName("VaultSecretStorePath").Interface().(string)
+		if len(secretStorePath) == 0 {
+			h.logger.Error("path for secret must be specified")
+			http.Error(w, "path for secret must be specified", http.StatusBadRequest)
+			return
+		}
+
+		data, err := h.vaultClient.GetClient().KVv2(secretStoreName).Get(
+			r.Context(),
+			fmt.Sprintf("%s/%s", secretStorePath, target),
+		)
+		if err != nil {
+			h.logger.Error(
+				fmt.Sprintf("error occurred when get credentials from Vault for target: %s", target),
+			)
+			h.logger.Error(err.Error())
+			http.Error(
+				w,
+				fmt.Sprintf("error occurred when get credentials from Vault for target: %s", target),
+				http.StatusBadRequest,
+			)
+			return
+		}
+
+		username, uok := data.Data["username"].(string)
+		password, pok := data.Data["password"].(string)
+		if !uok || !pok {
+			h.logger.Error(fmt.Sprintf("secret for target %s must contain string fields 'username' and 'password'", target))
+			http.Error(w, "secret must contain 'username' and 'password'", http.StatusBadRequest)
+			return
+		}
+		appCfg.FieldByName("VmwareUser").SetString(username)
+		appCfg.FieldByName("VmwarePass").SetString(password)
 	}
-	promhttp.HandlerFor(prometheus.DefaultGatherer, promhttp.HandlerOpts{}).ServeHTTP(w, r)
+
+	// a separate registry per request: never touch the global prometheus.Default* variables,
+	// otherwise concurrent probes mix up metrics and /metrics stops serving the default registry
+	reg := prometheus.NewRegistry()
+	reg.MustRegister(NewCollector(NewService(h.logger, target, cfg)))
+	promhttp.HandlerFor(reg, promhttp.HandlerOpts{}).ServeHTTP(w, r)
+}
+
+// configCopy returns a shallow copy of the current config (it consists of plain values only).
+func (h *exporterHandler) configCopy() interface{} {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	src := reflect.ValueOf(h.cfg).Elem()
+	dst := reflect.New(src.Type())
+	dst.Elem().Set(src)
+	return dst.Interface()
 }
 
 func (h *exporterHandler) reload(w http.ResponseWriter, r *http.Request) {
+	h.mu.Lock()
 	h.cfg = config.GetConfig()
+	h.mu.Unlock()
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode("Reload config from env success")

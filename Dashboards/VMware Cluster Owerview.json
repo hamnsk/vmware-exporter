@@ -1,14 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_PROMETHEUS",
-      "label": "Prometheus",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
   "__elements": [],
   "__requires": [
     {
@@ -154,7 +144,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "sum(vmware_exporter_host_cpu_cores{cluster_name=~\"$cluster\"})",
+          "expr": "sum((vmware_exporter_host_cpu_cores and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "range": true,
@@ -236,7 +226,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "sum(vmware_exporter_host_cpu_threads{cluster_name=~\"$cluster\"})",
+          "expr": "sum((vmware_exporter_host_cpu_threads and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "range": true,
@@ -318,7 +308,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "sum(vmware_exporter_host_cpu_max{cluster_name=~\"$cluster\"}) * 1000 * 1000",
+          "expr": "sum((vmware_exporter_host_cpu_max and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})) * 1000 * 1000",
           "format": "time_series",
           "intervalFactor": 1,
           "range": true,
@@ -400,7 +390,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "sum(vmware_exporter_host_memory_max{cluster_name=~\"$cluster\"})",
+          "expr": "sum((vmware_exporter_host_memory_max and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "range": true,
@@ -482,7 +472,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "count(vmware_exporter_host_hardware_info{cluster_name=~\"$cluster\"})",
+          "expr": "count((vmware_exporter_host_hardware_info and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "range": true,
@@ -576,7 +566,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "count(vmware_exporter_host_maintenance_mode{cluster_name=~\"$cluster\"}==1) OR vector(0)",
+          "expr": "count((vmware_exporter_host_maintenance_mode and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})==1) OR vector(0)",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -654,7 +644,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "sum(vmware_exporter_host_cpu_usage{cluster_name=~\"$cluster\"}) * 100 / sum(vmware_exporter_host_cpu_max{cluster_name=~\"$cluster\"})",
+          "expr": "sum((vmware_exporter_host_cpu_usage and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})) * 100 / sum((vmware_exporter_host_cpu_max and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ $cluster }",
@@ -732,7 +722,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "max(vmware_exporter_vm_cpu_ready_summation{cluster_name=~\"$cluster\"})/ 200",
+          "expr": "max((vmware_exporter_vm_cpu_ready_summation and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))/ 200",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ cluster }}",
@@ -811,7 +801,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "max(vmware_exporter_vm_cpu_costop_summation{cluster_name=~\"$cluster\"})/200",
+          "expr": "max((vmware_exporter_vm_cpu_costop_summation and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))/200",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ $cluster }}",
@@ -878,7 +868,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "sum(vmware_exporter_host_cpu_usage{cluster_name=~\"$cluster\"}) * 100 / sum(vmware_exporter_host_cpu_max{cluster_name=~\"$cluster\"})",
+          "expr": "sum((vmware_exporter_host_cpu_usage and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})) * 100 / sum((vmware_exporter_host_cpu_max and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ $cluster }}",
@@ -987,7 +977,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(vmware_exporter_host_memory_usage{cluster_name=~\"$cluster\"}) * 100 / sum(vmware_exporter_host_memory_max{cluster_name=~\"$cluster\"})",
+          "expr": "sum((vmware_exporter_host_memory_usage and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})) * 100 / sum((vmware_exporter_host_memory_max and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ $cluster }}",
@@ -1067,7 +1057,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "max(vmware_exporter_vm_mem_vmmemctl_average{cluster_name=~\"$cluster\"})",
+          "expr": "max((vmware_exporter_vm_mem_vmmemctl_average and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "range": true,
@@ -1147,7 +1137,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "max(vmware_exporter_vm_mem_swapped_average{cluster_name=~\"$cluster\"})",
+          "expr": "max((vmware_exporter_vm_mem_swapped_average and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "range": true,
@@ -1211,7 +1201,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum((vmware_exporter_host_memory_usage{cluster_name=~\"$cluster\"}) * 100) / sum(vmware_exporter_host_memory_max{cluster_name=~\"$cluster\"})",
+          "expr": "sum(((vmware_exporter_host_memory_usage and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})) * 100) / sum((vmware_exporter_host_memory_max and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ $cluster }}",
@@ -1252,7 +1242,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "$datasource"
       },
       "description": "",
       "fieldConfig": {
@@ -1545,7 +1535,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$datasource"
           },
           "editorMode": "code",
           "expr": "vmware_exporter_host_hardware_info{} -0 ",
@@ -1559,7 +1549,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$datasource"
           },
           "editorMode": "code",
           "expr": "vmware_exporter_host_memory_max{} -0",
@@ -1573,7 +1563,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$datasource"
           },
           "editorMode": "code",
           "expr": "vmware_exporter_host_cpu_cores{} -0",
@@ -1587,7 +1577,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$datasource"
           },
           "editorMode": "code",
           "expr": "time() - vmware_exporter_host_boot_timestamp_seconds{}",
@@ -1601,7 +1591,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$datasource"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -1616,7 +1606,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$datasource"
           },
           "editorMode": "code",
           "expr": "vmware_exporter_host_cpu_usage{} / vmware_exporter_host_cpu_max{} * 100",
@@ -1630,7 +1620,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$datasource"
           },
           "editorMode": "code",
           "expr": "vmware_exporter_host_memory_usage{} / vmware_exporter_host_memory_max{} * 100",
@@ -1644,7 +1634,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$datasource"
           },
           "editorMode": "code",
           "expr": "sum(vmware_exporter_vm_net_received_average{}) by (host_name)",
@@ -1658,7 +1648,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$datasource"
           },
           "editorMode": "code",
           "expr": "sum(vmware_exporter_vm_net_transmitted_average{}) by (host_name)",
@@ -1789,7 +1779,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(vmware_exporter_vm_net_received_average{cluster_name=~\"$cluster\"})+sum(vmware_exporter_vm_net_transmitted_average{cluster_name=~\"$cluster\"})",
+          "expr": "sum((vmware_exporter_vm_net_received_average and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))+sum((vmware_exporter_vm_net_transmitted_average and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ $cluster }}",
@@ -1882,7 +1872,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(vmware_exporter_vm_net_received_average{cluster_name=~\"$cluster\"})",
+          "expr": "sum((vmware_exporter_vm_net_received_average and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ $cluster }}",
@@ -1974,7 +1964,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(vmware_exporter_vm_net_transmitted_average{cluster_name=~\"$cluster\"})",
+          "expr": "sum((vmware_exporter_vm_net_transmitted_average and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ $cluster}}",
@@ -2069,7 +2059,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "sum(vmware_exporter_vm_net_broadcastrx_summation{cluster_name=~\"$cluster\"})",
+          "expr": "sum((vmware_exporter_vm_net_broadcastrx_summation and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ $cluster }}",
@@ -2164,7 +2154,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "sum(vmware_exporter_vm_net_broadcasttx_summation{cluster_name=~\"$cluster\"})",
+          "expr": "sum((vmware_exporter_vm_net_broadcasttx_summation and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ $cluster}}",
@@ -2260,7 +2250,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "sum(vmware_exporter_vm_net_multicastrx_summation{cluster_name=~\"$cluster\"})",
+          "expr": "sum((vmware_exporter_vm_net_multicastrx_summation and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ $cluster }}",
@@ -2356,7 +2346,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "sum(vmware_exporter_vm_net_multicasttx_summation{cluster_name=~\"$cluster\"})",
+          "expr": "sum((vmware_exporter_vm_net_multicasttx_summation and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ $cluster }}",
@@ -2449,7 +2439,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(vmware_exporter_vm_disk_read_average{cluster_name=~\"$cluster\"})+sum(vmware_exporter_vm_disk_write_average{cluster_name=~\"$cluster\"})",
+          "expr": "sum((vmware_exporter_vm_disk_read_average and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))+sum((vmware_exporter_vm_disk_write_average and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ $cluster }}",
@@ -2633,7 +2623,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(vmware_exporter_vm_disk_write_average{cluster_name=~\"$cluster\"})",
+          "expr": "sum((vmware_exporter_vm_disk_write_average and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{ $cluster }}",
@@ -2670,6 +2660,780 @@
       "yaxis": {
         "align": false
       }
+    },
+    {
+      "type": "row",
+      "title": "Health",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 51
+      },
+      "panels": [],
+      "id": 42
+    },
+    {
+      "type": "stat",
+      "title": "Hosts connected",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 52
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum(vmware_exporter_host_connected and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}) or vector(0)",
+          "legendFormat": "",
+          "refId": "A",
+          "range": false,
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "id": 43
+    },
+    {
+      "type": "stat",
+      "title": "Hosts not connected",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 52
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "count(vmware_exporter_host_connected == 0 and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}) or vector(0)",
+          "legendFormat": "",
+          "refId": "A",
+          "range": false,
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "mappings": [],
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "id": 44
+    },
+    {
+      "type": "stat",
+      "title": "Red alarms (hosts)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 52
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum(vmware_exporter_host_red_alarms and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}) or vector(0)",
+          "legendFormat": "",
+          "refId": "A",
+          "range": false,
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "mappings": [],
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "id": 45
+    },
+    {
+      "type": "stat",
+      "title": "Yellow alarms (hosts)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 52
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum(vmware_exporter_host_yellow_alarms and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}) or vector(0)",
+          "legendFormat": "",
+          "refId": "A",
+          "range": false,
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          },
+          "mappings": [],
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "id": 46
+    },
+    {
+      "type": "stat",
+      "title": "VMs powered on",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 52
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "count(vmware_exporter_vm_power_state == 1 and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}) or vector(0)",
+          "legendFormat": "",
+          "refId": "A",
+          "range": false,
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "id": 47
+    },
+    {
+      "type": "stat",
+      "title": "Red alarms (VMs)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 52
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum(vmware_exporter_vm_red_alarms and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"}) or vector(0)",
+          "legendFormat": "",
+          "refId": "A",
+          "range": false,
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "mappings": [],
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "id": 48
+    },
+    {
+      "type": "row",
+      "title": "Host network and storage",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 56
+      },
+      "panels": [],
+      "id": 49
+    },
+    {
+      "type": "timeseries",
+      "title": "Host network throughput per NIC",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 57
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum by (host_name, nic)(vmware_exporter_host_net_bytesrx_average and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})",
+          "legendFormat": "rx {{host_name}} {{nic}}",
+          "refId": "A",
+          "range": true,
+          "instant": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum by (host_name, nic)(vmware_exporter_host_net_bytestx_average and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})",
+          "legendFormat": "tx {{host_name}} {{nic}}",
+          "refId": "B",
+          "range": true,
+          "instant": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "KBs",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 50
+    },
+    {
+      "type": "timeseries",
+      "title": "Host network errors and drops",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 57
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum by (host_name)(vmware_exporter_host_net_errorsrx_summation and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})",
+          "legendFormat": "errors rx {{host_name}}",
+          "refId": "A",
+          "range": true,
+          "instant": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum by (host_name)(vmware_exporter_host_net_errorstx_summation and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})",
+          "legendFormat": "errors tx {{host_name}}",
+          "refId": "B",
+          "range": true,
+          "instant": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum by (host_name)(vmware_exporter_host_net_droppedrx_summation and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})",
+          "legendFormat": "dropped rx {{host_name}}",
+          "refId": "C",
+          "range": true,
+          "instant": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum by (host_name)(vmware_exporter_host_net_droppedtx_summation and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})",
+          "legendFormat": "dropped tx {{host_name}}",
+          "refId": "D",
+          "range": true,
+          "instant": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 51
+    },
+    {
+      "type": "timeseries",
+      "title": "Datastore latency per host",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 65
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "max by (host_name)(vmware_exporter_host_datastore_totalreadlatency_average and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})",
+          "legendFormat": "read {{host_name}}",
+          "refId": "A",
+          "range": true,
+          "instant": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "max by (host_name)(vmware_exporter_host_datastore_totalwritelatency_average and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})",
+          "legendFormat": "write {{host_name}}",
+          "refId": "B",
+          "range": true,
+          "instant": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 52
+    },
+    {
+      "type": "timeseries",
+      "title": "Datastore throughput per host",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 65
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum by (host_name)(vmware_exporter_host_datastore_read_average and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})",
+          "legendFormat": "read {{host_name}}",
+          "refId": "A",
+          "range": true,
+          "instant": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum by (host_name)(vmware_exporter_host_datastore_write_average and on (host_name) vmware_exporter_host_cluster_info{cluster=~\"$cluster\"})",
+          "legendFormat": "write {{host_name}}",
+          "refId": "B",
+          "range": true,
+          "instant": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "KBs",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 53
     }
   ],
   "schemaVersion": 34,
@@ -2703,25 +3467,26 @@
           "type": "prometheus",
           "uid": "$datasource"
         },
-        "definition": "label_values(cluster_name)",
+        "definition": "label_values(vmware_exporter_host_cluster_info, cluster)",
         "hide": 0,
-        "includeAll": false,
+        "includeAll": true,
         "label": "cluster",
         "multi": true,
         "name": "cluster",
         "options": [],
         "query": {
-          "query": "label_values(cluster_name)",
-          "refId": "Prometheus-cluster-Variable-Query"
+          "query": "label_values(vmware_exporter_host_cluster_info, cluster)",
+          "refId": "var-cluster"
         },
-        "refresh": 1,
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
         "tagsQuery": "",
         "type": "query",
-        "useTags": false
+        "useTags": false,
+        "allValue": ".*"
       }
     ]
   },
@@ -2758,6 +3523,7 @@
   "timezone": "browser",
   "title": "VMware Cluster Owerview",
   "uid": "MRvksdVJH5ry",
-  "version": 1,
-  "weekStart": ""
+  "version": 2,
+  "weekStart": "",
+  "refresh": "1m"
 }
